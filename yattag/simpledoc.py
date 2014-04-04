@@ -99,11 +99,13 @@ class SimpleDoc(object):
     def block(self, open_delimiter, close_delimiter):
         return self.__class__.Block(self, open_delimiter, close_delimiter)
         
-    def text(self, strg):
-        self._append(html_escape(strg))
+    def text(self, *strgs):
+        for strg in strgs:
+            self._append(html_escape(strg))
         
-    def asis(self, strg):
-        self._append(strg)
+    def asis(self, *strgs):
+        for strg in strgs:
+            self._append(strg)
         
     def nl(self):
         self._append('\n')
