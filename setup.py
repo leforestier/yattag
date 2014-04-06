@@ -5,7 +5,7 @@ with open('README.txt') as fd:
 
 setup(
     name='yattag',
-    version='0.8.2',
+    version='0.8.3',
     packages=['yattag'],
     author = 'Benjamin Le Forestier',
     author_email = 'benjamin@leforestier.org',
