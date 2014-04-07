@@ -167,9 +167,9 @@ class Option(object):
     
 class Doc(SimpleDoc):
     """
-    The Doc class keeps all the functionalities of the SimpleDoc class and add
-    html form rendering capabilities. Pass default values or errors as dictionnaries
-    to the Doc constructor, and use the `input`, `textarea`, `select`, `option` methods
+    The Doc class extends the SimpleDoc class with form rendering capabilities. 
+    Pass default values or errors as dictionnaries to the Doc constructor, and 
+    use the `input`, `textarea`, `select`, `option` methods
     to append form elements to the document.
     """
     
@@ -274,6 +274,39 @@ class Doc(SimpleDoc):
     
     def __init__(self, defaults = None, errors = None,\
      error_wrapper = ('<span class="error">', '</span>'), *args, **kwargs):
+        """
+        creates a Doc instance
+        
+        defaults::
+            optional dictionnary of values used to fill html forms
+        errors::
+            optional dictionnary of errors used to fill html forms
+        
+        Example 1::
+            doc = Doc()
+        
+        Example 2::
+            doc = Doc(
+                defaults = {
+                    'beverage': 'coffee',
+                    'preferences': ['milk', 'sugar'],
+                    'use_discount': True
+                },
+                errors = {
+                    'preferences': "We ran out of milk!"
+                }
+            )
+            
+        Note: very often you'll want to call the `tagtext` method just after
+        creating a Doc instance. Like this::
+        
+        doc, tag, text = Doc(defaults = {'color': 'blue'}).tagtext()
+        
+        This way, you can write `tag` (resp. `text`) in place of `doc.tag`
+        (resp. `doc.text`). When writing long html templates or xml documents,
+        it's a gain in readability and performance.
+        """
+                
         super(Doc, self).__init__(*args, **kwargs)
         self.defaults = defaults or {}
         self.errors = errors or {}
@@ -290,6 +323,7 @@ class Doc(SimpleDoc):
         self.checkbox_group_class = groupclass(self.__class__.CheckboxInput)
         self._fields = set()
         self._detached_errors_pos = []
+    
      
     def input(self, name, type = 'text', **kwargs):
         self._fields.add(name)
@@ -348,6 +382,9 @@ class Doc(SimpleDoc):
                         
             
     def getvalue(self):
+        """
+        returns the whole document as a single string
+        """
         for position, render_function in self._detached_errors_pos:
             self.result[position] = render_function(
                 dict((name, self.errors[name]) for name in self.errors if name not in self._fields)
