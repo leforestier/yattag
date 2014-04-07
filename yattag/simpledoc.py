@@ -129,7 +129,7 @@ class SimpleDoc(object):
         
             username = 'Max'
             text('Hello ', username, '!') # appends "Hello Max!" to the current node
-            text('16 > 4") # appends "16 &gt; 4" to the current node
+            text('16 > 4') # appends "16 &gt; 4" to the current node
         """
         for strg in strgs:
             self._append(html_escape(strg))
@@ -155,7 +155,7 @@ class SimpleDoc(object):
         sets HTML/XML attribute(s) on the current tag
         HTML/XML attributes are supplied as keyword arguments.
         The values of the keyword arguments are escaped for use as HTML attributes
-        (the " character is replace with &quot;)
+        (the " character is replaced with &quot;)
         Note that, instead, you can set html/xml attributes by passing them as
         keyword arguments to the `tag` method.
         
@@ -176,7 +176,7 @@ class SimpleDoc(object):
         appends a self closing tag to the document
         html/xml attributes can be supplied as keyword arguments.
         The values of the keyword arguments are escaped for use as HTML attributes
-        (the " character is replace with &quot;)
+        (the " character is replaced with &quot;)
         
         Example::
         
