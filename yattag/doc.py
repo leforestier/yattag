@@ -383,11 +383,11 @@ class Doc(SimpleDoc):
             
     def getvalue(self):
         """
-        returns the whole document as a single string
+        returns the whole document as a string
         """
         for position, render_function in self._detached_errors_pos:
             self.result[position] = render_function(
-                dict((name, self.errors[name]) for name in self.errors if name not in self._fields)
+                {name: self.errors[name] for name in self.errors if name not in self._fields}
             )
         return ''.join(self.result)
     
