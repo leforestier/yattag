@@ -1,28 +1,5 @@
 __all__ = ['SimpleDoc']
 
-class DocError(Exception):
-    pass
-          
-def html_escape(s):
-    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
-def attr_escape(s):
-    return s.replace('"', "&quot;")
-
-def dict_to_attrs(dct):
-    try:
-        if 'klass' in dct:
-            lst = ['%s="%s"' % (key, arg.replace('"', "&quot;")) for (key, arg) in dct.items() if key != "klass"]
-            lst.append('class="%s"' % dct['klass'].replace('"', "&quot;"))
-        else:
-            lst = ['%s="%s"' % (key, arg.replace('"', "&quot;")) for (key, arg) in dct.items()]
-    except AttributeError as e:
-        if "'replace'" in str(e):
-            raise ValueError("xml/html attributes should be strings. %s" % e)
-        else:
-            raise
-    return ' '.join(lst)
-    
 class SimpleDoc(object):
 
     """
@@ -219,6 +196,30 @@ class SimpleDoc(object):
 
     def blockasis(self):
         return self, self.block, self.asis
+        
+
+class DocError(Exception):
+    pass
+          
+def html_escape(s):
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+def attr_escape(s):
+    return s.replace('"', "&quot;")
+
+def dict_to_attrs(dct):
+    try:
+        if 'klass' in dct:
+            lst = ['%s="%s"' % (key, arg.replace('"', "&quot;")) for (key, arg) in dct.items() if key != "klass"]
+            lst.append('class="%s"' % dct['klass'].replace('"', "&quot;"))
+        else:
+            lst = ['%s="%s"' % (key, arg.replace('"', "&quot;")) for (key, arg) in dct.items()]
+    except AttributeError as e:
+        if "'replace'" in str(e):
+            raise ValueError("xml/html attributes should be strings. %s" % e)
+        else:
+            raise
+    return ' '.join(lst)
 
             
         
