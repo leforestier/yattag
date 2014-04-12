@@ -29,17 +29,20 @@ class Text(Token):
     
 class Comment(Token):
     regex = r'<!--((?!-->).)*.?-->'
-    
+
 class CData(Token):
     regex = r'<!\[CDATA\[((?!\]\]>).*).?\]\]>'
+    
+class Doctype(Token):
+    regex = r'''<!DOCTYPE(\s+([^<>"']+|"[^"]*"|'[^']*'))*>'''
     
 _open_tag_start = r'''
     <\s*
         (?P<{tag_name_key}>{tag_name_rgx})
         (\s+[^/><"=\s]+     # attribute
-            ((\s*=\s*)
+            (\s*=\s*
                 (
-                    [^/><"=]+ |    # unquoted attribute value
+                    [^/><"=\s]+ |    # unquoted attribute value
                     ("[^"]*") |    # " quoted attribute value
                     ('[^']*')      # ' quoted attribute value
                 )
@@ -51,10 +54,20 @@ class Script(Token):
     _end_script = r'<\s*/\s*script\s*>'
     
     regex = _open_tag_start.format(
-        tag_name_key = 'ignore',
+        tag_name_key = 'script_ignore',
         tag_name_rgx = 'script',
     ) + r'>((?!({end_script})).)*.?{end_script}'.format(
         end_script = _end_script
+    )
+    
+class Style(Token):
+    _end_style = r'<\s*/\s*style\s*>'
+    
+    regex = _open_tag_start.format(
+        tag_name_key = 'style_ignore',
+        tag_name_rgx = 'style',
+    ) + r'>((?!({end_style})).)*.?{end_style}'.format(
+        end_style = _end_style
     )
 
 class NamedTagTokenMeta(TokenMeta):
@@ -126,7 +139,7 @@ class Tokenizer(object):
         return result
         
 tokenize = Tokenizer(
-    (Text, Comment, CData, Script, OpenTag, SelfTag, CloseTag)
+    (Text, Comment, CData, Doctype, Script, Style, OpenTag, SelfTag, CloseTag)
 ).tokenize
 
 class TagMatcher(object):
@@ -215,6 +228,5 @@ def indent(string, indentation = '  ', cr = '\n', preserve_blank_text = False):
 if __name__ == '__main__':
     import sys
     inp = sys.stdin.read()
-    print()
     print(indent(inp))
 
