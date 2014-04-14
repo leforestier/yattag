@@ -179,7 +179,7 @@ class TagMatcher(object):
         return i in self.name_matchers[self.token_list[i].tag_name].matched
                 
             
-def indent(string, indentation = '  ', cr = '\n', preserve_blank_text = False):
+def indent(string, indentation = '  ', newline = '\n', preserve_blank_text = False):
     tokens = tokenize(string)
     ismatched = TagMatcher(tokens).ismatched
     result = []
@@ -202,7 +202,7 @@ def indent(string, indentation = '  ', cr = '\n', preserve_blank_text = False):
             if sameline:
                 sameline += 1
             else:
-                i == 0 or append(cr)
+                i == 0 or append(newline)
                 _indent()
                 was_just_opened = True
             append(token.content)
@@ -214,12 +214,12 @@ def indent(string, indentation = '  ', cr = '\n', preserve_blank_text = False):
             elif was_just_opened:
                 was_just_opened = False
             else:
-                append(cr)
+                append(newline)
                 _indent()
             append(token.content)
         else:
             if not sameline:
-                i == 0 or append(cr)
+                i == 0 or append(newline)
                 _indent()
             append(token.content)
             was_just_opened = False
