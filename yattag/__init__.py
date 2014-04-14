@@ -55,7 +55,7 @@ Full tutorial on yattag.org_
 """
 
 __author__ = "Benjamin Le Forestier (benjamin@leforestier.org)"
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 
 from yattag.simpledoc import SimpleDoc
 from yattag.doc import Doc
