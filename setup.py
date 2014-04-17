@@ -5,15 +5,15 @@ with open('README.rst') as fd:
 
 setup(
     name='yattag',
-    version='0.9.2',
+    version='0.9.3',
     packages=['yattag'],
     author = 'Benjamin Le Forestier',
     author_email = 'benjamin@leforestier.org',
     url = 'http://www.yattag.org',
     keywords = ["html", "template", "templating", "xml", "document", "form", "rendering"],
-    description = """Library for generating HTML or XML in a pythonic way.\
- Can fill HTML forms with default values and errors. Pure python alternative to\
- html templating languages.""",
+    description = """\
+Generate HTML or XML in a pythonic way. Pure python alternative to web template engines.\
+Can fill HTML forms with default values and error messages.""",
     long_description = long_description,
     classifiers = [
         "Programming Language :: Python",
