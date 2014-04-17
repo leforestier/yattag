@@ -26,6 +26,15 @@ class Token(TokenBase):
         
 class Text(Token):
     regex = '[^<>]+'
+    def __init__(self, *args, **kwargs):
+        super(Text, self).__init__(*args, **kwargs)
+        self._isblank = None
+        
+    @property
+    def isblank(self):
+        if self._isblank is None:
+            self._isblank = not self.content.strip()
+        return self._isblank
     
 class Comment(Token):
     regex = r'<!--((?!-->).)*.?-->'
@@ -154,20 +163,39 @@ class TagMatcher(object):
                 open_tag = self.unmatched_open.pop()
                 self.matched[open_tag] = i
                 self.matched[i] = open_tag
+                return open_tag
+            else:
+                return None
                 
         def sigopen(self, i):
             self.unmatched_open.append(i)
-                
-    def __init__(self, token_list):
+                   
+    def __init__(self, token_list, blank_is_text = False):
         self.token_list = token_list
         self.name_matchers = {}
+        self.direct_text_parents = set()
+        
         for i in range(len(token_list)):
             token = token_list[i]
-            if isinstance(token, OpenTag):
+            tpe = type(token)
+            if tpe is OpenTag:
                 self._get_name_matcher(token.tag_name).sigopen(i)
-            elif isinstance(token, CloseTag):
+            elif tpe is CloseTag:
                 self._get_name_matcher(token.tag_name).sigclose(i)
-                
+        
+        # TODO move this somewhere else
+        current_nodes = []
+        for i in range(len(token_list)):
+            token = token_list[i]
+            tpe = type(token)
+            if tpe is OpenTag and self.ismatched(i):
+                current_nodes.append(i)
+            elif tpe is CloseTag and self.ismatched(i):
+                current_nodes.pop()
+            elif tpe is Text and (blank_is_text or not token.isblank):
+                if current_nodes:
+                    self.direct_text_parents.add(current_nodes[-1])
+                        
     def _get_name_matcher(self, tag_name):
         try:
             return self.name_matchers[tag_name]
@@ -177,49 +205,86 @@ class TagMatcher(object):
             
     def ismatched(self, i):
         return i in self.name_matchers[self.token_list[i].tag_name].matched
+        
+    def directly_contains_text(self, i):
+        return i in self.direct_text_parents
                 
             
-def indent(string, indentation = '  ', newline = '\n', preserve_blank_text = False):
+def indent(string, indentation = '  ', newline = '\n', indent_text = False, blank_is_text = False):
+    """
+    take a string representing a html or xml document and returns well indented version of it
+    arguments:
+    - string: the string to process
+    - indentation: the indentation unit (default to two spaces)
+    - newline: the string to be use for new lines (default to '\n', could be set to '\r\n' for example)
+    - indent_text::
+        
+        if True, text nodes will be indented
+            <p>Hello</p>
+            
+            would result in
+            
+            <p>
+                hello
+            </p>
+        
+        if False, text nodes won't be indented, and any node directly containing text will be unchanged.
+            <p>Hello</p> will be unchanged
+            
+            <p><strong>Hello</strong> world!</p> will be unchanged
+            
+            This is the default since that's generally what you want for HTML.
+        
+    - blank_is_text::
+        if False, completely blank texts are ignored. That is the default.
+    """ 
     tokens = tokenize(string)
-    ismatched = TagMatcher(tokens).ismatched
+    tag_matcher = TagMatcher(tokens, blank_is_text = blank_is_text)
+    ismatched = tag_matcher.ismatched
+    directly_contains_text = tag_matcher.directly_contains_text
     result = []
     append = result.append
     level = 0
     sameline = 0
     was_just_opened = False
+    tag_appeared = False
     def _indent():
+        if tag_appeared:
+            append(newline)
         for i in range(level):
             append(indentation)
     for i in range(len(tokens)):
         token = tokens[i]
         tpe = type(token)
         if tpe is Text:
-            if preserve_blank_text or token.content.strip():
+            if blank_is_text or not token.isblank:
+                if not sameline:
+                    _indent()
                 append(token.content)
-                sameline = sameline or 1
                 was_just_opened = False
         elif tpe is OpenTag and ismatched(i):
+            was_just_opened = True
             if sameline:
                 sameline += 1
             else:
-                i == 0 or append(newline)
                 _indent()
-                was_just_opened = True
+            if not indent_text and directly_contains_text(i):
+                sameline = sameline or 1
             append(token.content)
             level += 1
+            tag_appeared = True
         elif tpe is CloseTag and ismatched(i):
             level -= 1
+            tag_appeared = True
             if sameline:
                 sameline -= 1
-            elif was_just_opened:
-                was_just_opened = False
-            else:
-                append(newline)
+            elif not was_just_opened:
                 _indent()
             append(token.content)
+            was_just_opened = False
         else:
+            tag_appeared = True
             if not sameline:
-                i == 0 or append(newline)
                 _indent()
             append(token.content)
             was_just_opened = False
@@ -227,6 +292,5 @@ def indent(string, indentation = '  ', newline = '\n', preserve_blank_text = Fal
     
 if __name__ == '__main__':
     import sys
-    inp = sys.stdin.read()
-    print(indent(inp))
+    print(indent(sys.stdin.read()))
 

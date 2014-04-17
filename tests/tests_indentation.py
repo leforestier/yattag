@@ -19,7 +19,37 @@ class TestIndent(unittest.TestCase):
         <img src="photo1">
         <img src="photo2">
     </div>
-</body>"""
+</body>""",
+            """
+            <html>
+            <body>
+            <p><strong>Important:</strong> the content of nodes that directly contain text should be preserved.</p>
+            <div>
+            <p>But the content of nodes that don't (like the parent div here) should be indented.</p>
+            </div>
+            </body>
+            </html>
+""": """\
+<html>
+    <body>
+        <p><strong>Important:</strong> the content of nodes that directly contain text should be preserved.</p>
+        <div>
+            <p>But the content of nodes that don't (like the parent div here) should be indented.</p>
+        </div>
+    </body>
+</html>""",
+            '<p>Hello <i>world</i>!</p>': "<p>Hello <i>world</i>!</p>"
+        }
+        
+        self.targets_indent_text = { '<p>Hello <i>world</i>!</p>': """\
+<p>
+    Hello 
+    <i>
+        world
+    </i>
+    !
+</p>"""
+        
         }
 
     def test_indent(self):
@@ -35,6 +65,14 @@ class TestIndent(unittest.TestCase):
                 indent(source),
                 indent(indent(source))
             )
+            
+    def test_indent_text_option(self):
+        for source, target in self.targets_indent_text.items():
+            self.assertEqual(
+                indent(source, indentation = "    ", indent_text = True),
+                target
+            )
+                
 
 
 if __name__ == '__main__':
