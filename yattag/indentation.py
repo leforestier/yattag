@@ -212,14 +212,18 @@ class TagMatcher(object):
             
 def indent(string, indentation = '  ', newline = '\n', indent_text = False, blank_is_text = False):
     """
-    take a string representing a html or xml document and returns well indented version of it
+    takes a string representing a html or xml document and returns
+     a well indented version of it
+    
     arguments:
     - string: the string to process
     - indentation: the indentation unit (default to two spaces)
-    - newline: the string to be use for new lines (default to '\n', could be set to '\r\n' for example)
-    - indent_text::
+    - newline: the string to be use for new lines
+      (default to  '\\n', could be set to '\\r\\n' for example)
+    - indent_text:
         
-        if True, text nodes will be indented
+        if True, text nodes will be indented:
+        
             <p>Hello</p>
             
             would result in
@@ -228,14 +232,17 @@ def indent(string, indentation = '  ', newline = '\n', indent_text = False, blan
                 hello
             </p>
         
-        if False, text nodes won't be indented, and any node directly containing text will be unchanged.
+        if False, text nodes won't be indented, and the content
+         of any node directly containing text will be unchanged:
+         
             <p>Hello</p> will be unchanged
             
             <p><strong>Hello</strong> world!</p> will be unchanged
+             since ' world!' is directly contained in the <p> node.
             
             This is the default since that's generally what you want for HTML.
         
-    - blank_is_text::
+    - blank_is_text:
         if False, completely blank texts are ignored. That is the default.
     """ 
     tokens = tokenize(string)
