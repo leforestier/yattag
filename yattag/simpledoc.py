@@ -209,11 +209,11 @@ def attr_escape(s):
 
 def dict_to_attrs(dct):
     try:
-        if 'klass' in dct:
+        if 'klass' in dct and dct['klass']:
             lst = ['%s="%s"' % (key, arg.replace('"', "&quot;")) for (key, arg) in dct.items() if key != "klass"]
             lst.append('class="%s"' % dct['klass'].replace('"', "&quot;"))
         else:
-            lst = ['%s="%s"' % (key, arg.replace('"', "&quot;")) for (key, arg) in dct.items()]
+            lst = ['%s="%s"' % (key, arg.replace('"', "&quot;")) for (key, arg) in dct.items() if arg]
     except AttributeError as e:
         if "'replace'" in str(e):
             raise ValueError("xml/html attributes should be strings. %s" % e)
