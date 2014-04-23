@@ -75,8 +75,9 @@ class SimpleDoc(object):
         opens a HTML/XML tag for use inside a `with` statement
         the tag is closed when leaving the `with` block
         HTML/XML attributes can be supplied as keyword arguments.
-        The values of the keyword arguments are escaped for use as HTML attributes
-        (the " character is replace with &quot;)
+        The values of the keyword arguments should be strings.
+        They are escaped for use as HTML attributes
+        (the " character is replaced with &quot;)
         
         In order to supply a "class" html attributes, you must supply a `klass` keyword
         argument. This is because `class` is a reserved python keyword so you can't use it
@@ -131,10 +132,15 @@ class SimpleDoc(object):
         """
         sets HTML/XML attribute(s) on the current tag
         HTML/XML attributes are supplied as keyword arguments.
-        The values of the keyword arguments are escaped for use as HTML attributes
+        The values of the keyword arguments should be strings.
+        They are escaped for use as HTML attributes
         (the " character is replaced with &quot;)
         Note that, instead, you can set html/xml attributes by passing them as
         keyword arguments to the `tag` method.
+        
+        In order to supply a "class" html attributes, you must supply a `klass` keyword
+        argument. This is because `class` is a reserved python keyword so you can't use it
+        outside of a class definition.
         
         Example::
             
@@ -152,7 +158,8 @@ class SimpleDoc(object):
         """
         appends a self closing tag to the document
         html/xml attributes can be supplied as keyword arguments.
-        The values of the keyword arguments are escaped for use as HTML attributes
+        The values of the keyword arguments should be strings.
+        They are escaped for use as HTML attributes
         (the " character is replaced with &quot;)
         
         Example::
@@ -212,7 +219,7 @@ def dict_to_attrs(dct):
     for key, value in dct.items():
         try:
             replace = value.replace
-        except AttributeError as e:
+        except AttributeError:
             raise ValueError(
                 "xml/html attributes should be strings. Got %s (type %s)." % (
                     repr(value),
