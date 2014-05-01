@@ -39,27 +39,6 @@ class SimpleDoc(object):
                     self.doc.result[self.position] = "<%s>" % self.name
                 self.doc._append("</%s>" % self.name)
                 self.doc.current_tag = self.parent_tag
-
-    class Block(object):
-        def __init__(self, doc, open_delimiter, close_delimiter = None):
-            self.doc = doc
-            self.open_delimiter = open_delimiter
-            if close_delimiter is None:
-                if open_delimiter == '{':
-                    self.close_delimiter = '}'
-                elif open_delimiter == '(':
-                    self.close_delimiter = ')'
-                elif open_delimiter == '/*':
-                    self.close_delimiter = '*/'
-                else:
-                    self.close_delimiter = open_delimiter
-
-        def __enter__(self):
-            self.doc._append(self.open_delimiter)
-
-        def __exit__(self, tpe, value, traceback):
-            if value is None:
-                self.doc._append(self.close_delimiter)
          
     class DocumentRoot(object):
         def __getattr__(self, item):
@@ -92,8 +71,6 @@ class SimpleDoc(object):
         """
         return self.__class__.Tag(self, tag_name, kwargs)
 
-    def block(self, open_delimiter, close_delimiter):
-        return self.__class__.Block(self, open_delimiter, close_delimiter)
         
     def text(self, *strgs):
         """
@@ -200,9 +177,6 @@ class SimpleDoc(object):
         """
             
         return self, self.tag, self.text
-
-    def blockasis(self):
-        return self, self.block, self.asis
         
 
 class DocError(Exception):
