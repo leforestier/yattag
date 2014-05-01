@@ -5,7 +5,7 @@ with open('README.rst') as fd:
 
 setup(
     name='yattag',
-    version='0.9.4',
+    version='0.9.5',
     packages=['yattag'],
     author = 'Benjamin Le Forestier',
     author_email = 'benjamin@leforestier.org',
