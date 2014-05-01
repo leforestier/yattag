@@ -49,6 +49,8 @@ Html form rendering example with default values
     
 Full tutorial on yattag.org_
 
+GitHub repo: https://github.com/leforestier/yattag
+
 .. _yattag.org: http://www.yattag.org
     
 
