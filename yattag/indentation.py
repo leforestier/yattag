@@ -58,7 +58,7 @@ _open_tag_start = r'''
             )?  # the attribute value is optional (we're forgiving)
         )*
     \s*'''
-    
+
 class Script(Token):
     _end_script = r'<\s*/\s*script\s*>'
     
@@ -78,6 +78,12 @@ class Style(Token):
     ) + r'>((?!({end_style})).)*.?{end_style}'.format(
         end_style = _end_style
     )
+
+class XMLDeclaration(Token):
+    regex = _open_tag_start.format(
+        tag_name_key = 'xmldecl_ignore',
+        tag_name_rgx = r'\?\s*xml'
+    ) + r'\?\s*>'
 
 class NamedTagTokenMeta(TokenMeta):
     def __new__(cls, name, bases, attrs):
@@ -148,7 +154,7 @@ class Tokenizer(object):
         return result
         
 tokenize = Tokenizer(
-    (Text, Comment, CData, Doctype, Script, Style, OpenTag, SelfTag, CloseTag)
+    (Text, Comment, CData, Doctype, XMLDeclaration, Script, Style, OpenTag, SelfTag, CloseTag)
 ).tokenize
 
 class TagMatcher(object):
