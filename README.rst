@@ -25,8 +25,8 @@ Html form rendering
 -------------------
 
 Yattag can fill your HTML forms with default values and error messages.
-Pass a `defaults` dictionnary of default values, and an `errors` dictionnary of error messages to the `Doc` constructor.
-Then, use the special `input`, `textarea`, `select`, `option` methods when generating your documents.
+Pass a ``defaults`` dictionnary of default values, and an ``errors`` dictionnary of error messages to the ``Doc`` constructor.
+Then, use the special ``input``, ``textarea``, ``select``, ``option`` methods when generating your documents.
 
 
 Example with default values
