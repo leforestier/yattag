@@ -30,7 +30,7 @@ Then, use the special ``input``, ``textarea``, ``select``, ``option`` methods wh
 
 
 Example with default values
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
