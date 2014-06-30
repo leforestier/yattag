@@ -1,7 +1,5 @@
 Why use a template engine when you can generate HTML or XML documents with Python in a very readable way?
 
-Some examples:
-
 ( full tutorial on yattag.org_ )
 
 Basic example
