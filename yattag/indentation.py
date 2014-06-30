@@ -266,8 +266,7 @@ def indent(string, indentation = '  ', newline = '\n', indent_text = False, blan
             append(newline)
         for i in range(level):
             append(indentation)
-    for i in range(len(tokens)):
-        token = tokens[i]
+    for i,token in enumerate(tokens):
         tpe = type(token)
         if tpe is Text:
             if blank_is_text or not token.isblank:
@@ -296,11 +295,11 @@ def indent(string, indentation = '  ', newline = '\n', indent_text = False, blan
             append(token.content)
             was_just_opened = False
         else:
-            tag_appeared = True
             if not sameline:
                 _indent()
             append(token.content)
             was_just_opened = False
+            tag_appeared = True
     return ''.join(result)
     
 if __name__ == '__main__':

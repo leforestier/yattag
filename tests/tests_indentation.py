@@ -38,7 +38,14 @@ class TestIndent(unittest.TestCase):
         </div>
     </body>
 </html>""",
-            '<p>Hello <i>world</i>!</p>': "<p>Hello <i>world</i>!</p>"
+            '<p>Hello <i>world</i>!</p>': "<p>Hello <i>world</i>!</p>",
+            
+            '<?xml version="1.0" encoding="utf-8"?><a><b/><b/></a>': '''\
+<?xml version="1.0" encoding="utf-8"?>
+<a>
+    <b/>
+    <b/>
+</a>'''
         }
         
         self.targets_indent_text = { '<p>Hello <i>world</i>!</p>': """\
@@ -49,8 +56,9 @@ class TestIndent(unittest.TestCase):
     </i>
     !
 </p>"""
-        
         }
+        
+
 
     def test_indent(self):
         for source, target in self.targets.items():
