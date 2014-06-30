@@ -5,7 +5,7 @@ with open('README.rst') as fd:
 
 setup(
     name='yattag',
-    version='0.9.6',
+    version='1.0.0',
     packages=['yattag'],
     author = 'Benjamin Le Forestier',
     author_email = 'benjamin@leforestier.org',
@@ -24,6 +24,7 @@ Can fill HTML forms with default values and error messages.""",
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
