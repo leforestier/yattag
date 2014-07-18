@@ -7,12 +7,15 @@ except NameError:
 
 __all__ = ['Doc']
 
-class InputBase(object):
+class SimpleInput(object):
 
-    tpe = 'text'
+    """
+    class representing text inputs, password inputs, hidden inputs etc...
+    """
     
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, tpe, **kwargs):
         self.name = name
+        self.tpe = tpe
         self.attrs = kwargs
         
     def render(self, defaults, errors, error_wrapper):
@@ -31,18 +34,9 @@ class InputBase(object):
         if self.name in defaults:
             attrs['value'] = str(defaults[self.name])
         attrs['name'] = self.name
-        lst.append('<input type="%s" %s />' % (self.__class__.tpe, dict_to_attrs(attrs)))
+        lst.append('<input type="%s" %s />' % (self.tpe, dict_to_attrs(attrs)))
         
         return ''.join(lst)
-
-class TextInput(InputBase):
-        pass
-    
-class PasswordInput(InputBase):
-    tpe = 'password'
-
-class HiddenInput(InputBase):
-    tpe = 'hidden'
         
 
 class CheckableInput(object):
@@ -173,9 +167,7 @@ class Doc(SimpleDoc):
     to append form elements to the document.
     """
     
-    TextInput = TextInput
-    PasswordInput = PasswordInput
-    HiddenInput = HiddenInput
+    SimpleInput = SimpleInput
     CheckboxInput = CheckboxInput
     RadioInput = RadioInput
     Textarea = Textarea
@@ -314,11 +306,6 @@ class Doc(SimpleDoc):
         self.radios = {}
         self.checkboxes = {}
         self.current_select = None
-        self._input_classes = {
-            'text': self.__class__.TextInput,
-            'password': self.__class__.PasswordInput,
-            'hidden': self.__class__.HiddenInput,
-        }
         self.radio_group_class = groupclass(self.__class__.RadioInput)
         self.checkbox_group_class = groupclass(self.__class__.CheckboxInput)
         self._fields = set()
@@ -327,14 +314,17 @@ class Doc(SimpleDoc):
      
     def input(self, name, type = 'text', **kwargs):
         self._fields.add(name)
-        try:
-            input_class = self._input_classes[type]
-        except KeyError:
-            pass
-        else:
-            self.asis(input_class(name, **kwargs).render(self.defaults, self.errors, self.error_wrapper))
+        if type in (
+            'text', 'password', 'hidden', 'search', 'email', 'url', 'number',
+            'range', 'date', 'datetime', 'datetime-local', 'month', 'week',
+            'time', 'color'
+        ): 
+            self.asis(
+                self.__class__.SimpleInput(name, type, **kwargs).render(
+                    self.defaults, self.errors, self.error_wrapper
+                )
+            )
             return
-        
         if type == 'radio':
             if name not in self.radios:
                 self.radios[name] = self.radio_group_class(name)
