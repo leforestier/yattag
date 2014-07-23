@@ -105,21 +105,23 @@ class SimpleDoc(object):
     def nl(self):
         self._append('\n')
         
-    def attr(self, **kwargs):
+    def attr(self, *args, **kwargs):
         """
         sets HTML/XML attribute(s) on the current tag
-        HTML/XML attributes are supplied as keyword arguments.
+        HTML/XML attributes are supplied as (key, value) pairs of strings,
+        or as keyword arguments.
         The values of the keyword arguments should be strings.
         They are escaped for use as HTML attributes
         (the " character is replaced with &quot;)
         Note that, instead, you can set html/xml attributes by passing them as
         keyword arguments to the `tag` method.
         
-        In order to supply a "class" html attributes, you must supply a `klass` keyword
-        argument. This is because `class` is a reserved python keyword so you can't use it
-        outside of a class definition.
+        In order to supply a "class" html attributes, you can either pass
+        a ('class', 'my_value') pair, or supply a `klass` keyword argument
+        (this is because `class` is a reserved python keyword so you can't use it
+        outside of a class definition).
         
-        Example::
+        Examples::
             
             with tag('h1'):
                 text('Welcome!')
@@ -127,8 +129,17 @@ class SimpleDoc(object):
             
             # you get: <h1 id="welcome-message" class="main-title">Welcome!</h1>
         
-        """
+            with tag('td'):
+                doc.attr(
+                    ('data-search', 'lemon'),
+                    ('data-order', '1384')
+                )
+                doc.text('Citrus Limon')
+                
+            # you get: <td data-search="lemon" data-order="1384">Citrus Limon</td>
         
+        """
+        self.current_tag.attrs.update(args)
         self.current_tag.attrs.update(kwargs)
         
     def stag(self, tag_name, **kwargs):
