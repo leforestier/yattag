@@ -49,18 +49,19 @@ class SimpleDoc(object):
         self.current_tag = self.__class__.DocumentRoot()
         self._append = self.result.append
         
-    def tag(self, tag_name, **kwargs):
+    def tag(self, tag_name, *args, **kwargs):
         """
         opens a HTML/XML tag for use inside a `with` statement
         the tag is closed when leaving the `with` block
-        HTML/XML attributes can be supplied as keyword arguments.
+        HTML/XML attributes can be supplied as keyword arguments,
+        or alternatively as (key, value) pairs.
         The values of the keyword arguments should be strings.
         They are escaped for use as HTML attributes
         (the " character is replaced with &quot;)
         
         In order to supply a "class" html attributes, you must supply a `klass` keyword
         argument. This is because `class` is a reserved python keyword so you can't use it
-        outside of a class definition.
+        outside of a class definition. 
         
         Example::
         
@@ -68,8 +69,19 @@ class SimpleDoc(object):
                 text("Hello world!")
                 
             # <h1 id="main-title">Hello world!</h1> was appended to the document
+            
+            with tag('td',
+                ('data-search', 'lemon'),
+                ('data-order', '1384'),
+                id = '16'
+            ):
+                text('Citrus Limon')
+                
+            # you get: <td data-search="lemon" data-order="1384" id="16">Citrus Limon</td>
+                
+            
         """
-        return self.__class__.Tag(self, tag_name, kwargs)
+        return self.__class__.Tag(self, tag_name, _attributes(args, kwargs))
 
         
     def text(self, *strgs):
@@ -130,11 +142,12 @@ class SimpleDoc(object):
             # you get: <h1 id="welcome-message" class="main-title">Welcome!</h1>
         
             with tag('td'):
+                text('Citrus Limon')
                 doc.attr(
                     ('data-search', 'lemon'),
                     ('data-order', '1384')
                 )
-                doc.text('Citrus Limon')
+                
                 
             # you get: <td data-search="lemon" data-order="1384">Citrus Limon</td>
         
@@ -142,10 +155,11 @@ class SimpleDoc(object):
         self.current_tag.attrs.update(args)
         self.current_tag.attrs.update(kwargs)
         
-    def stag(self, tag_name, **kwargs):
+    def stag(self, tag_name, *args, **kwargs):
         """
         appends a self closing tag to the document
-        html/xml attributes can be supplied as keyword arguments.
+        html/xml attributes can be supplied as keyword arguments,
+        or alternatively as (key, value) pairs.
         The values of the keyword arguments should be strings.
         They are escaped for use as HTML attributes
         (the " character is replaced with &quot;)
@@ -155,11 +169,10 @@ class SimpleDoc(object):
             doc.stag('img', src = '/salmon-plays-piano.jpg')
             # appends <img src="/salmon-plays-piano.jpg /> to the document
         """
-        
         if kwargs:
             self._append("<%s %s />" % (
                 tag_name,
-                dict_to_attrs(kwargs),
+                dict_to_attrs(_attributes(args, kwargs)),
             ))
         else:
             self._append("<%s />" % tag_name)
@@ -217,3 +230,13 @@ def dict_to_attrs(dct):
         else:
             lst.append('%s="%s"' % (key, escaped_value))
     return ' '.join(lst)
+    
+def _attributes(key_value_pairs, dictionnary):
+    # note: if the key_value_pairs list is empty,
+    # the reference to the dictionnary is returned
+    if key_value_pairs:
+        attributes = dict(key_value_pairs)
+        attributes.update(dictionnary)
+        return attributes
+    else:
+        return dictionnary
