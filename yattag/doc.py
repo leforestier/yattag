@@ -377,7 +377,7 @@ class Doc(SimpleDoc):
         """
         for position, render_function in self._detached_errors_pos:
             self.result[position] = render_function(
-                {name: self.errors[name] for name in self.errors if name not in self._fields}
+                dict((name, self.errors[name]) for name in self.errors if name not in self._fields)
             )
         return ''.join(self.result)
     
