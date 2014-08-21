@@ -16,11 +16,9 @@ Generate HTML or XML in a pythonic way. Pure python alternative to web template 
 Can fill HTML forms with default values and error messages.""",
     long_description = long_description,
     classifiers = [
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
+        'Environment :: Web Environment',
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
-        'Environment :: Web Environment',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
