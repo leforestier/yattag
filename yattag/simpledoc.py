@@ -210,7 +210,7 @@ def html_escape(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 def attr_escape(s):
-    return s.replace('"', "&quot;")
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
 
 def dict_to_attrs(dct):
     lst = []
@@ -224,7 +224,7 @@ def dict_to_attrs(dct):
                     repr(type(value))
                 )
             )
-        escaped_value = replace('"', "&quot;")
+        escaped_value = attr_escape(value)
         if key == 'klass':
             lst.append('class="%s"' % escaped_value)
         else:
