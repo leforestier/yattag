@@ -210,20 +210,20 @@ def html_escape(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 def attr_escape(s):
+    try:
+        s.replace
+    except AttributeError:
+        raise ValueError(
+            "xml/html attributes should be strings. Got %s (type %s)." % (
+                repr(s),
+                repr(type(s))
+            )
+        )
     return s.replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
 
 def dict_to_attrs(dct):
     lst = []
     for key, value in dct.items():
-        try:
-            replace = value.replace
-        except AttributeError:
-            raise ValueError(
-                "xml/html attributes should be strings. Got %s (type %s)." % (
-                    repr(value),
-                    repr(type(value))
-                )
-            )
         escaped_value = attr_escape(value)
         if key == 'klass':
             lst.append('class="%s"' % escaped_value)
