@@ -13,10 +13,10 @@ class SimpleInput(object):
     class representing text inputs, password inputs, hidden inputs etc...
     """
     
-    def __init__(self, name, tpe, **kwargs):
+    def __init__(self, name, tpe, attrs):
         self.name = name
         self.tpe = tpe
-        self.attrs = kwargs
+        self.attrs = attrs
         
     def render(self, defaults, errors, error_wrapper):
         lst = []
@@ -42,10 +42,10 @@ class SimpleInput(object):
 class CheckableInput(object):
     tpe = 'checkbox'
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, attrs):
         self.name = name
         self.rank = 0
-        self.attrs = kwargs
+        self.attrs = attrs
         
     def setrank(self, n):
         self.rank = n
@@ -87,8 +87,8 @@ def groupclass(inputclass):
             self.name = name
             self.n_items = 0
             
-        def input(self, **kwargs):
-            input_instance = inputclass(self.name, **kwargs)
+        def input(self, attrs):
+            input_instance = inputclass(self.name, attrs)
             input_instance.setrank(self.n_items)
             self.n_items += 1
             return input_instance
@@ -99,9 +99,9 @@ class ContainerTag(object):
 
     tag_name = 'textarea' 
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, attrs):
         self.name = name
-        self.attrs = kwargs
+        self.attrs = attrs
         
     def render(self, defaults, errors, error_wrapper, inner_content = ''):
         lst = []
@@ -133,11 +133,11 @@ class Select(ContainerTag):
 
 
 class Option(object):
-    def __init__(self, name, multiple, value, **kwargs):
+    def __init__(self, name, multiple, value, attrs):
         self.name = name
         self.multiple = multiple
         self.value = value
-        self.attrs = kwargs
+        self.attrs = attrs
 
     def render(self, defaults, errors, inner_content):
         selected = ''        
@@ -158,7 +158,44 @@ class Option(object):
         lst.append(inner_content)
         lst.append('</option>')
         return ''.join(lst)
-    
+        
+def _attrs_from_args(required_keys, *args, **kwargs):
+    # need to do all this to allow specifying attributes as (key, value) pairs
+    # while maintaining backward compatibility with previous versions
+    # of yattag, which allowed 'name', 'type', and 'value' attributes
+    # as positional or as keyword arguments
+    def raise_exception(arg):
+        raise ValueError(
+            "Optional attributes should be passed as (key, value) pairs or as keyword arguments."
+            "Got %s (type %s)" % (repr(arg), repr(type(arg)))   
+        )
+    limit = 0
+    for arg in args:
+        if isinstance(arg, tuple):
+            break 
+        else:
+            limit += 1
+    if limit > len(required_keys):
+        raise_exception(args[limit-1])
+    attrs = dict(zip(required_keys[:limit],args[:limit]))
+    for arg in args[limit:]:
+        if isinstance(arg, tuple):
+            attrs[arg[0]] = arg[1]
+        else:
+            raise_exception(arg)
+    attrs.update(kwargs)
+
+    required_attrs = []
+
+    for key in required_keys:
+        try:
+            required_attrs.append(attrs.pop(key))
+        except KeyError:
+            raise ValueError(
+                "the %s attribute is missing" % repr(key)
+            )
+    return required_attrs + [attrs]
+   
 class Doc(SimpleDoc):
     """
     The Doc class extends the SimpleDoc class with form rendering capabilities. 
@@ -192,7 +229,7 @@ class Doc(SimpleDoc):
             if value is None:
                 inner_content = ''.join(self.doc.result[self.position+1:])
                 del self.doc.result[self.position+1:]              
-                rendered_textarea = self.doc.__class__.Textarea(self.name, **self.attrs).render(
+                rendered_textarea = self.doc.__class__.Textarea(self.name, self.attrs).render(
                     defaults = self.doc.defaults,
                     errors = self.doc.errors,
                     inner_content = inner_content,
@@ -224,7 +261,7 @@ class Doc(SimpleDoc):
             if value is None:
                 inner_content = ''.join(self.doc.result[self.position+1:])
                 del self.doc.result[self.position+1:]
-                rendered_select = self.doc.__class__.Select(self.name, **self.attrs).render(
+                rendered_select = self.doc.__class__.Select(self.name, self.attrs).render(
                     defaults = {},  # no defaults for the <select> tag. Defaults are handled by the <option> tags directly.
                     errors = self.doc.errors,
                     inner_content = inner_content,
@@ -255,7 +292,8 @@ class Doc(SimpleDoc):
                 self.doc.result[self.position] = self.doc.__class__.Option(
                     name = self.select.name,
                     multiple = self.select.multiple,
-                    value = self.value, **self.attrs
+                    value = self.value,
+                    attrs = self.attrs
                 ).render(
                     defaults = self.doc.defaults,
                     errors = self.doc.errors,
@@ -264,7 +302,7 @@ class Doc(SimpleDoc):
                 self.doc.current_tag = self.parent_tag
 
     
-    def __init__(self, defaults = None, errors = None,\
+    def __init__(self, defaults = None, errors = None,
      error_wrapper = ('<span class="error">', '</span>'), *args, **kwargs):
         """
         creates a Doc instance
@@ -312,7 +350,9 @@ class Doc(SimpleDoc):
         self._detached_errors_pos = []
     
      
-    def input(self, name, type = 'text', **kwargs):
+    def input(self, *args, **kwargs):
+        "required attributes: 'name' and 'type'"
+        name, type, attrs = _attrs_from_args(('name', 'type'), *args, **kwargs)
         self._fields.add(name)
         if type in (
             'text', 'password', 'hidden', 'search', 'email', 'url', 'number',
@@ -320,7 +360,7 @@ class Doc(SimpleDoc):
             'time', 'color'
         ): 
             self.asis(
-                self.__class__.SimpleInput(name, type, **kwargs).render(
+                self.__class__.SimpleInput(name, type, attrs).render(
                     self.defaults, self.errors, self.error_wrapper
                 )
             )
@@ -339,19 +379,25 @@ class Doc(SimpleDoc):
             else:
                 raise DocError("Unknown input type: %s" % type)
         
-        self._append(checkable_group.input(**kwargs).render(self.defaults,self.errors, self.error_wrapper))
+        self._append(checkable_group.input(attrs).render(self.defaults,self.errors, self.error_wrapper))
         
-    def textarea(self, name, **kwargs):
+    def textarea(self, *args, **kwargs):
+        "required attribute: 'name'"
+        name, attrs = _attrs_from_args(('name',), *args, **kwargs)
         self._fields.add(name)
-        return self.__class__.TextareaTag(self, name, kwargs)
+        return self.__class__.TextareaTag(self, name, attrs)
         
-    def select(self, name, **kwargs):
+    def select(self, *args, **kwargs):
+        "required attribute: 'name'"
+        name, attrs = _attrs_from_args(('name',), *args, **kwargs)
         self._fields.add(name)
-        return self.__class__.SelectTag(self, name, kwargs)
+        return self.__class__.SelectTag(self, name, attrs)
         
-    def option(self, value, **kwargs):
+    def option(self, *args, **kwargs):
+        "required attribute: 'value'"
         if self.current_select:
-            return self.__class__.OptionTag(self, self.current_select, value, kwargs)
+            value, attrs = _attrs_from_args(('value',), *args, **kwargs)
+            return self.__class__.OptionTag(self, self.current_select, value, attrs)
         else:
             raise DocError("No <select> tag opened. Can't put an <option> here.")
             
