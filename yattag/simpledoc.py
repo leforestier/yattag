@@ -152,8 +152,7 @@ class SimpleDoc(object):
             # you get: <td data-search="lemon" data-order="1384">Citrus Limon</td>
         
         """
-        self.current_tag.attrs.update(args)
-        self.current_tag.attrs.update(kwargs)
+        self.current_tag.attrs.update(_attributes(args, kwargs))
         
     def stag(self, tag_name, *args, **kwargs):
         """
@@ -201,7 +200,59 @@ class SimpleDoc(object):
         """
             
         return self, self.tag, self.text
-        
+
+    def add_class(self, *classes):
+        """
+        adds one or many elements to the html "class" attribute of the current tag
+        Example::
+            user_logged_in = False
+            with tag('a', href="/nuclear-device", klass = 'small'):
+                if not user_logged_in:
+                    doc.add_class('restricted-area')
+                text("Our new product")
+            
+            print(doc.getvalue())
+
+            # prints <a class="restricted-area small" href="/nuclear-device"></a>
+        """ 
+        self._set_classes(
+            self._get_classes().union(classes)
+        )
+    
+    def remove_class(self, *classes):
+        """
+        remove one or many elements from the html "class" attribute of the current tag
+        """
+        self._set_classes(
+            self._get_classes().difference(classes)
+        )
+
+    def toggle_class(self, *classes):
+        """
+        add elements absent from the "class" html attribute or remove them if they are 
+        present
+        """
+        self._set_classes(
+            self._get_classes().symmetric_difference(classes)
+    )
+
+    def _get_classes(self):
+        try:
+            current_classes = self.current_tag.attrs['class']
+        except KeyError:
+            return set()
+        else:
+            import re
+            return set(re.findall('\w+', current_classes))
+
+    def _set_classes(self, classes_set):
+        if classes_set:
+            self.current_tag.attrs['class'] = ' '.join(classes_set)
+        else:
+            try:
+                del self.current_tag.attrs['class']
+            except KeyError:
+                pass
 
 class DocError(Exception):
     pass
@@ -222,21 +273,15 @@ def attr_escape(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
 
 def dict_to_attrs(dct):
-    lst = []
-    for key, value in dct.items():
-        escaped_value = attr_escape(value)
-        if key == 'klass':
-            lst.append('class="%s"' % escaped_value)
-        else:
-            lst.append('%s="%s"' % (key, escaped_value))
-    return ' '.join(lst)
+    return ' '.join(
+        '%s="%s"' % (key, attr_escape(value))
+        for key,value in dct.items()
+    )
     
 def _attributes(key_value_pairs, dictionnary):
-    # note: if the key_value_pairs list is empty,
-    # the reference to the dictionnary is returned
-    if key_value_pairs:
-        attributes = dict(key_value_pairs)
-        attributes.update(dictionnary)
-        return attributes
-    else:
-        return dictionnary
+    result = dict(key_value_pairs)
+    result.update(
+        (('class', value) if key == 'klass' else (key, value))
+        for key,value in dictionnary.items()
+    )
+    return result
