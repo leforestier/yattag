@@ -23,10 +23,10 @@ class SimpleInput(object):
         attrs = dict(self.attrs)
         error = errors and self.name in errors
         if error:
-            if 'klass' in attrs:
-                attrs['klass'] = attrs['klass'] + " error"
+            if 'class' in attrs:
+                attrs['class'] = attrs['class'] + " error"
             else:
-                attrs['klass'] = "error"
+                attrs['class'] = "error"
             lst.append(error_wrapper[0])
             lst.append(html_escape(errors[self.name]))
             lst.append(error_wrapper[1])
@@ -59,8 +59,8 @@ class CheckableInput(object):
                     lst.append(error_wrapper[0])
                     lst.append(html_escape(errors[self.name]))
                     lst.append(error_wrapper[1])
-                    if 'klass' not in attrs:
-                        attrs['klass'] = "error"
+                    if 'class' not in attrs:
+                        attrs['class'] = "error"
         
         if self.name in defaults and 'value' in self.attrs and defaults[self.name] == self.attrs['value']:
             attrs['checked'] = 'checked'
@@ -111,8 +111,8 @@ class ContainerTag(object):
                 lst.append(error_wrapper[0])
                 lst.append(html_escape(errors[self.name]))
                 lst.append(error_wrapper[1])
-            if 'klass' not in attrs:
-                attrs['klass'] = "error"
+            if 'class' not in attrs:
+                attrs['class'] = "error"
         attrs['name'] = self.name
 
         lst.append('<%s %s>' % (self.__class__.tag_name, dict_to_attrs(attrs)))
@@ -183,7 +183,10 @@ def _attrs_from_args(required_keys, *args, **kwargs):
             attrs[arg[0]] = arg[1]
         else:
             raise_exception(arg)
-    attrs.update(kwargs)
+    attrs.update(
+        (('class', value) if key == 'klass' else (key, value))
+        for key, value in kwargs.items()
+    )
 
     required_attrs = []
 
