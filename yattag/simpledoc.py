@@ -201,58 +201,27 @@ class SimpleDoc(object):
             
         return self, self.tag, self.text
 
-    def add_class(self, *classes):
-        """
-        adds one or many elements to the html "class" attribute of the current tag
-        Example::
-            user_logged_in = False
-            with tag('a', href="/nuclear-device", klass = 'small'):
-                if not user_logged_in:
-                    doc.add_class('restricted-area')
-                text("Our new product")
-            
-            print(doc.getvalue())
+    @property
+    def classes(self):
+        return self.current_tag.attrs['class']
 
-            # prints <a class="restricted-area small" href="/nuclear-device"></a>
-        """ 
-        self._set_classes(
-            self._get_classes().union(classes)
-        )
+class ClassValue(set):
+    def __str__(self):
+        return ' '.join(sorted(self))
     
-    def remove_class(self, *classes):
-        """
-        remove one or many elements from the html "class" attribute of the current tag
-        """
-        self._set_classes(
-            self._get_classes().difference(classes)
-        )
+    def add(self, classes):
+        self.update(classes.split())
 
-    def toggle_class(self, *classes):
-        """
-        add elements absent from the "class" html attribute or remove them if they are 
-        present
-        """
-        self._set_classes(
-            self._get_classes().symmetric_difference(classes)
-    )
+    def remove(self, classes):
+        self -= set(classes.split())
 
-    def _get_classes(self):
-        try:
-            current_classes = self.current_tag.attrs['class']
-        except KeyError:
-            return set()
-        else:
-            import re
-            return set(re.findall('\w+', current_classes))
-
-    def _set_classes(self, classes_set):
-        if classes_set:
-            self.current_tag.attrs['class'] = ' '.join(classes_set)
-        else:
-            try:
-                del self.current_tag.attrs['class']
-            except KeyError:
-                pass
+    def toggle(self, classes, state=None):
+        if state is None:
+            self ^= set(classes.split())
+        elif state:
+            self.add(classes)
+        elif classes in self:
+            self.remove(classes)
 
 class DocError(Exception):
     pass
@@ -261,6 +230,7 @@ def html_escape(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 def attr_escape(s):
+    s = str(s) if isinstance(s, ClassValue) else s
     try:
         s.replace
     except AttributeError:
@@ -272,16 +242,22 @@ def attr_escape(s):
         )
     return s.replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
 
+def is_empty(key, value):
+    if key == 'class':
+        return len(value) == 0
+    else:
+        return False
+
 def dict_to_attrs(dct):
     return ' '.join(
         '%s="%s"' % (key, attr_escape(value))
-        for key,value in dct.items()
+        for key,value in dct.items() if not is_empty(key, value)
     )
     
+def update_class_attr(attrs):
+    classes = attrs.pop('klass', None) or attrs.get('class') or ''
+    attrs['class'] = ClassValue(classes.split())
+    return attrs
+
 def _attributes(key_value_pairs, dictionnary):
-    result = dict(key_value_pairs)
-    result.update(
-        (('class', value) if key == 'klass' else (key, value))
-        for key,value in dictionnary.items()
-    )
-    return result
+    return update_class_attr(dict(key_value_pairs, **dictionnary))

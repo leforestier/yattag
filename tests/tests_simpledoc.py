@@ -1,5 +1,6 @@
 import unittest
 from yattag import SimpleDoc
+from yattag.simpledoc import ClassValue
 import xml.etree.ElementTree as ET
 
 class TestSimpledoc(unittest.TestCase):
@@ -39,18 +40,18 @@ class TestSimpledoc(unittest.TestCase):
 
     def test_html_classes(self):
         def class_elems(node):
-            return set(node.attrib['class'].split(' '))
+            return set(node.attrib['class'].split())
 
         doc, tag, text = SimpleDoc().tagtext()
 
         with tag('p', klass = 'news'):
-            doc.add_class('highlight', 'today')
-            doc.remove_class('news')
-            doc.toggle_class('active')
+            doc.classes.add('highlight today')
+            doc.classes.remove('news')
+            doc.classes.toggle('active')
             with tag('a', href = '/', klass = 'small useless'):
-                doc.remove_class('useless')
+                doc.classes.remove('useless')
             with tag('a', href = '/', klass = 'important'):
-                doc.remove_class('important')
+                doc.classes.remove('important')
         
         root = ET.fromstring(doc.getvalue())
         self.assertEqual(
@@ -62,6 +63,28 @@ class TestSimpledoc(unittest.TestCase):
             set(['small'])
         )
         self.assertRaises(KeyError, lambda: class_elems(root[1]))
+
+class ClassValueTests(unittest.TestCase):
+    def test_toggle(self):
+        classes = ClassValue('bc')
+
+        classes.toggle('a')
+        self.assertEqual(str(classes), 'a b c')
+
+        classes.toggle('a')
+        self.assertEqual(str(classes), 'b c')
+
+        classes.toggle('a', True)
+        self.assertEqual(str(classes), 'a b c')
+
+        classes.toggle('a', True)
+        self.assertEqual(str(classes), 'a b c')
+
+        classes.toggle('a', False)
+        self.assertEqual(str(classes), 'b c')
+
+        classes.toggle('a', False)
+        self.assertEqual(str(classes), 'b c')
 
 if __name__ == '__main__':
     unittest.main()

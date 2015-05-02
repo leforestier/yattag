@@ -1,4 +1,4 @@
-from yattag.simpledoc import dict_to_attrs, html_escape, attr_escape, SimpleDoc, DocError
+from yattag.simpledoc import dict_to_attrs, html_escape, attr_escape, update_class_attr, SimpleDoc, DocError
 
 try:
     range = xrange  # for Python 2/3 compatibility
@@ -23,10 +23,7 @@ class SimpleInput(object):
         attrs = dict(self.attrs)
         error = errors and self.name in errors
         if error:
-            if 'class' in attrs:
-                attrs['class'] = attrs['class'] + " error"
-            else:
-                attrs['class'] = "error"
+            attrs['class'].add('error')
             lst.append(error_wrapper[0])
             lst.append(html_escape(errors[self.name]))
             lst.append(error_wrapper[1])
@@ -59,8 +56,7 @@ class CheckableInput(object):
                     lst.append(error_wrapper[0])
                     lst.append(html_escape(errors[self.name]))
                     lst.append(error_wrapper[1])
-                    if 'class' not in attrs:
-                        attrs['class'] = "error"
+                    attrs['class'].add('error')
         
         if self.name in defaults and 'value' in self.attrs and defaults[self.name] == self.attrs['value']:
             attrs['checked'] = 'checked'
@@ -111,8 +107,7 @@ class ContainerTag(object):
                 lst.append(error_wrapper[0])
                 lst.append(html_escape(errors[self.name]))
                 lst.append(error_wrapper[1])
-            if 'class' not in attrs:
-                attrs['class'] = "error"
+            attrs['class'].add('error')
         attrs['name'] = self.name
 
         lst.append('<%s %s>' % (self.__class__.tag_name, dict_to_attrs(attrs)))
@@ -183,10 +178,9 @@ def _attrs_from_args(required_keys, *args, **kwargs):
             attrs[arg[0]] = arg[1]
         else:
             raise_exception(arg)
-    attrs.update(
-        (('class', value) if key == 'klass' else (key, value))
-        for key, value in kwargs.items()
-    )
+
+    attrs.update(kwargs)
+    update_class_attr(attrs)
 
     required_attrs = []
 
