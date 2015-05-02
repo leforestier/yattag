@@ -258,7 +258,10 @@ class DocError(Exception):
     pass
           
 def html_escape(s):
-    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    try:
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    except:
+        return(str(s))
 
 def attr_escape(s):
     try:
