@@ -219,22 +219,28 @@ class SimpleDoc(object):
             self._get_classes().union(classes)
         )
     
-    def remove_class(self, *classes):
+    def discard_class(self, *classes):
         """
-        remove one or many elements from the html "class" attribute of the current tag
+        remove one or many elements from the html "class" attribute of the current
+        tag if they are present (do nothing if they are absent)
         """
         self._set_classes(
             self._get_classes().difference(classes)
         )
 
-    def toggle_class(self, *classes):
+    def toggle_class(self, elem, active = True):
         """
-        add elements absent from the "class" html attribute or remove them if they are 
-        present
+        if active is a truthy value, ensure elem is present inside the html 
+        "class" attribute of the current tag, otherwise (if active is falsy)
+        ensure elem is absent 
         """
-        self._set_classes(
-            self._get_classes().symmetric_difference(classes)
-    )
+        classes = self._get_classes()
+        if active:
+            classes.add(elem)
+        else:
+            classes.discard(elem)
+        self._set_classes(classes)
+    
 
     def _get_classes(self):
         try:
@@ -242,8 +248,7 @@ class SimpleDoc(object):
         except KeyError:
             return set()
         else:
-            import re
-            return set(re.findall('\w+', current_classes))
+            return set(current_classes.split())
 
     def _set_classes(self, classes_set):
         if classes_set:

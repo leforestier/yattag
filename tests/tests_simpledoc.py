@@ -45,12 +45,12 @@ class TestSimpledoc(unittest.TestCase):
 
         with tag('p', klass = 'news'):
             doc.add_class('highlight', 'today')
-            doc.remove_class('news')
-            doc.toggle_class('active')
+            doc.discard_class('news')
+            doc.toggle_class('active', True)
             with tag('a', href = '/', klass = 'small useless'):
-                doc.remove_class('useless')
+                doc.discard_class('useless')
             with tag('a', href = '/', klass = 'important'):
-                doc.remove_class('important')
+                doc.discard_class('important')
         
         root = ET.fromstring(doc.getvalue())
         self.assertEqual(
