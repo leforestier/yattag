@@ -228,7 +228,7 @@ class SimpleDoc(object):
             self._get_classes().difference(classes)
         )
 
-    def toggle_class(self, elem, active = True):
+    def toggle_class(self, elem, active):
         """
         if active is a truthy value, ensure elem is present inside the html 
         "class" attribute of the current tag, otherwise (if active is falsy)
