@@ -43,7 +43,7 @@ class SimpleDoc(object):
     class DocumentRoot(object):
         def __getattr__(self, item):
             raise DocError("DocumentRoot here. You can't access anything here.")
-        
+
     def __init__(self):
         self.result = []
         self.current_tag = self.__class__.DocumentRoot()
@@ -277,16 +277,32 @@ def attr_escape(s):
         )
     return s.replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
 
+ATTR_NO_VALUE = object()
+
 def dict_to_attrs(dct):
     return ' '.join(
-        '%s="%s"' % (key, attr_escape(value))
+        (key if value is ATTR_NO_VALUE
+        else '%s="%s"' % (key, attr_escape(value)))
         for key,value in dct.items()
     )
     
-def _attributes(key_value_pairs, dictionnary):
-    result = dict(key_value_pairs)
+def _attributes(args, kwargs):
+    lst = []
+    for arg in args:
+        if isinstance(arg, tuple):
+            lst.append(arg)
+        elif isinstance(arg, str):
+            lst.append((arg, ATTR_NO_VALUE))
+        else:
+            raise ValueError(
+                "Couldn't make a XML or HTML attribute/value pair out of %s."
+                % repr(arg)
+            )
+    result = dict(lst)
     result.update(
         (('class', value) if key == 'klass' else (key, value))
-        for key,value in dictionnary.items()
+        for key,value in kwargs.items()
     )
     return result
+
+

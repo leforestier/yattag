@@ -35,6 +35,15 @@ class TestSimpledoc(unittest.TestCase):
             KeyError,        
             lambda: root[1].attrib['klass']
         )
+
+    def test_attrs_no_value(self):
+        doc, tag, text = SimpleDoc().tagtext()
+        with tag('paper-button', 'raised'):
+            text('I am a fancy button')
+        self.assertEqual(
+            doc.getvalue(),
+            "<paper-button raised>I am a fancy button</paper-button>"
+        )
         
 
     def test_html_classes(self):
