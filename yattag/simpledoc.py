@@ -265,19 +265,26 @@ class DocError(Exception):
 def html_escape(s):
     if isinstance(s,(int,float)):
         return str(s)
-    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    try:
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    except AttributeError:
+        raise TypeError(
+            "You can only insert a string, an int or a float inside a xml/html text node. "
+            "Got %s (type %s) instead." % (repr(s), repr(type(s)))
+        )   
+        
 
 def attr_escape(s):
+    if isinstance(s,(int,float)):
+        return str(s)
     try:
-        s.replace
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
     except AttributeError:
-        raise ValueError(
-            "xml/html attributes should be strings. Got %s (type %s)." % (
-                repr(s),
-                repr(type(s))
-            )
+        raise TypeError(
+            "xml/html attributes should be passed as strings, ints or floats. "
+            "Got %s (type %s) instead." % (repr(s), repr(type(s)))
         )
-    return s.replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
+    
 
 ATTR_NO_VALUE = object()
 
