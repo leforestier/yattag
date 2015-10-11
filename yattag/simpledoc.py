@@ -112,6 +112,10 @@ class SimpleDoc(object):
             doc.asis('<!DOCTYPE html>') # appends <!DOCTYPE html> to the document
         """
         for strg in strgs:
+            if strg is None:
+                raise TypeError("Expected a string, got None instead.")
+                # passing None by mistake was frequent enough to justify a check
+                # see https://github.com/leforestier/yattag/issues/20
             self._append(strg)
         
     def nl(self):
