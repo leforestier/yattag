@@ -9,9 +9,16 @@ class TestSimpledoc(unittest.TestCase):
         with tag('h1', id = 'main-title'):
             with tag('a', href="/"):
                 text("Hello world!")
+            with tag('span'):
+                text("Hello, CDATA!", cdata=True)
         self.assertEqual(
             doc.getvalue(),
-            '<h1 id="main-title"><a href="/">Hello world!</a></h1>'
+            ''.join([
+                '<h1 id="main-title">',
+                '<a href="/">Hello world!</a>',
+                '<span><![CDATA[Hello, CDATA!]]></span>',
+                '</h1>',
+            ]),
         )
 
     def test_attrs(self):
@@ -32,7 +39,7 @@ class TestSimpledoc(unittest.TestCase):
         self.assertEqual(root[1].attrib['src'], 'squirrel.jpg')
         self.assertEqual(root[1].attrib['class'], 'animal')
         self.assertRaises(
-            KeyError,        
+            KeyError,
             lambda: root[1].attrib['klass']
         )
 
@@ -44,7 +51,7 @@ class TestSimpledoc(unittest.TestCase):
             doc.getvalue(),
             "<paper-button raised>I am a fancy button</paper-button>"
         )
-        
+
 
     def test_html_classes(self):
         def class_elems(node):
@@ -60,7 +67,7 @@ class TestSimpledoc(unittest.TestCase):
                 doc.discard_class('useless')
             with tag('a', href = '/', klass = 'important'):
                 doc.discard_class('important')
-        
+
         root = ET.fromstring(doc.getvalue())
         self.assertEqual(
             class_elems(root),
