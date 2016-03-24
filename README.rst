@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/leforestier/yattag.svg
+    :target: https://travis-ci.org/leforestier/yattag
+
 Why use a template engine when you can generate HTML or XML documents with Python in a very readable way?
 
 ( full tutorial on yattag.org_ )
