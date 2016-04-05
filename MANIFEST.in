@@ -1,1 +1,3 @@
 include README.rst
+include license/COPYING
+include license/lgpl-2.1.txt
