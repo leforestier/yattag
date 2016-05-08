@@ -72,5 +72,32 @@ class TestSimpledoc(unittest.TestCase):
         )
         self.assertRaises(KeyError, lambda: class_elems(root[1]))
 
+    def test_cdata(self):
+        doc, tag, text = SimpleDoc().tagtext()
+        with tag('example'):
+            doc.cdata('6 > 8 & 54')
+        self.assertEqual(
+            doc.getvalue(),
+            '<example><![CDATA[6 > 8 & 54]]></example>'
+        )
+        
+        doc = SimpleDoc()
+        doc.cdata('Jean Michel', safe = True)
+        self.assertEqual(doc.getvalue(), '<![CDATA[Jean Michel]]>')
+        
+        doc = SimpleDoc()
+        doc.cdata('A CDATA section should end with ]]>')
+        self.assertEqual(
+            doc.getvalue(),
+            '<![CDATA[A CDATA section should end with ]]]]><![CDATA[>]]>'
+        )
+        
+        doc = SimpleDoc()
+        doc.cdata('Some data ]]><script src="malicious.js">')
+        self.assertEqual(
+            doc.getvalue(),
+            '<![CDATA[Some data ]]]]><![CDATA[><script src="malicious.js">]]>'
+        )
+
 if __name__ == '__main__':
     unittest.main()

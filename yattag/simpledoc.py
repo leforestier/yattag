@@ -180,6 +180,23 @@ class SimpleDoc(object):
         else:
             self._append("<%s />" % tag_name)
             
+    def cdata(self, strg, safe = False):
+        """
+        appends a CDATA section containing the supplied string
+        
+        You don't have to worry about potential ']]>' sequences that would terminate
+        the CDATA section. They are replaced with ']]]]><![CDATA[>'.
+        
+        If you're sure your string does not contain ']]>', you can pass `safe = True`.
+        If you do that, your string won't be searched for ']]>' sequences.
+        """
+        self._append('<![CDATA[')
+        if safe:
+            self._append(strg)
+        else:
+            self._append(strg.replace(']]>', ']]]]><![CDATA[>'))
+        self._append(']]>')
+            
     def getvalue(self):
         """
         returns the whole document as a single string
