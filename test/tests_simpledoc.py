@@ -98,6 +98,20 @@ class TestSimpledoc(unittest.TestCase):
             doc.getvalue(),
             '<![CDATA[Some data ]]]]><![CDATA[><script src="malicious.js">]]>'
         )
-
+        
+    def test_line(self):
+        doc, tag, text, line = SimpleDoc().ttl()
+        line('h1', 'Some interesting links')
+        line('a', "Python's strftime directives", href="http://strftime.org"),
+        line('a', "Example of good UX for a homepage", href="http://zombo.com")
+        self.assertEqual(
+            doc.getvalue(),
+            (
+                '<h1>Some interesting links</h1>'
+                '<a href="http://strftime.org">Python\'s strftime directives</a>'
+                '<a href="http://zombo.com">Example of good UX for a homepage</a>'
+            )
+        )
+        
 if __name__ == '__main__':
     unittest.main()

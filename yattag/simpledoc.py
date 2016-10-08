@@ -100,6 +100,38 @@ class SimpleDoc(object):
         """
         for strg in strgs:
             self._append(html_escape(strg))
+            
+    def line(self, tag_name, text_content, *args, **kwargs):
+        """
+        Shortcut to write tag nodes that contain only text.
+        For example, in order to obtain::
+        
+            <h1>The 7 secrets of catchy titles</h1>
+            
+        you would write::
+            
+            line('h1', 'The 7 secrets of catchy titles')
+            
+        which is just a shortcut for::
+        
+            with tag('h1'):
+                text('The 7 secrets of catchy titles')
+                
+        The first argument is the tag name, the second argument
+        is the text content of the node.
+        The optional arguments after that are interpreted as xml/html
+        attributes. in the same way as with the `tag` method.
+        
+        Example::
+        
+            line('a', 'Who are we?', href = '/about-us.html')
+            
+        produces::
+            
+            <a href="/about-us.html">Who are we?</a>
+        """
+        with self.tag(tag_name, *args, **kwargs):
+            self.text(text_content) 
         
     def asis(self, *strgs):
         """
@@ -221,6 +253,27 @@ class SimpleDoc(object):
         """
             
         return self, self.tag, self.text
+        
+    def ttl(self):
+        """
+        returns a quadruplet composed of::
+            . the document itself
+            . its tag method
+            . its text method
+            . its line method
+            
+        Example::
+        
+            doc, tag, text, line = SimpleDoc().ttl()
+            
+            with tag('ul', id='grocery-list'):
+                line('li', 'Tomato sauce', klass="priority")
+                line('li', 'Salt')
+                line('li', 'Pepper')
+                
+            print(doc.getvalue())
+        """
+        return self, self.tag, self.text, self.line
 
     def add_class(self, *classes):
         """
