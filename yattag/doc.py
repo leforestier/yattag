@@ -23,10 +23,7 @@ class SimpleInput(object):
         attrs = dict(self.attrs)
         error = errors and self.name in errors
         if error:
-            if 'class' in attrs:
-                attrs['class'] = attrs['class'] + " error"
-            else:
-                attrs['class'] = "error"
+            _add_class(attrs, 'error')
             lst.append(error_wrapper[0])
             lst.append(html_escape(errors[self.name]))
             lst.append(error_wrapper[1])
@@ -54,13 +51,11 @@ class CheckableInput(object):
         lst = []
         attrs = dict(self.attrs)
         if self.rank == 0:
-            if errors:
-                if self.name in errors:
-                    lst.append(error_wrapper[0])
-                    lst.append(html_escape(errors[self.name]))
-                    lst.append(error_wrapper[1])
-                    if 'class' not in attrs:
-                        attrs['class'] = "error"
+            if errors and self.name in errors:
+                lst.append(error_wrapper[0])
+                lst.append(html_escape(errors[self.name]))
+                lst.append(error_wrapper[1])
+                _add_class(attrs, 'error')
         
         if self.name in defaults and 'value' in self.attrs and defaults[self.name] == self.attrs['value']:
             attrs['checked'] = 'checked'
@@ -106,13 +101,11 @@ class ContainerTag(object):
     def render(self, defaults, errors, error_wrapper, inner_content = ''):
         lst = []
         attrs = dict(self.attrs)
-        if errors:
-            if self.name in errors:
-                lst.append(error_wrapper[0])
-                lst.append(html_escape(errors[self.name]))
-                lst.append(error_wrapper[1])
-            if 'class' not in attrs:
-                attrs['class'] = "error"
+        if errors and self.name in errors:
+            lst.append(error_wrapper[0])
+            lst.append(html_escape(errors[self.name]))
+            lst.append(error_wrapper[1])
+            _add_class(attrs, 'error')
         attrs['name'] = self.name
 
         lst.append('<%s %s>' % (self.__class__.tag_name, dict_to_attrs(attrs)))
@@ -429,4 +422,8 @@ class Doc(SimpleDoc):
                 dict((name, self.errors[name]) for name in self.errors if name not in self._fields)
             )
         return ''.join(self.result)
-    
+
+def _add_class(dct, klass):
+    classes = dct.get('class', '').split()
+    if klass not in classes:
+        dct['class'] = ' '.join(classes + [klass])
