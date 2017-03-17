@@ -202,15 +202,15 @@ class SimpleDoc(object):
         Example::
         
             doc.stag('img', src = '/salmon-plays-piano.jpg')
-            # appends <img src="/salmon-plays-piano.jpg /> to the document
+            # appends <img src="/salmon-plays-piano.jpg"> to the document
         """
         if args or kwargs:
-            self._append("<%s %s />" % (
+            self._append("<%s %s>" % (
                 tag_name,
                 dict_to_attrs(_attributes(args, kwargs)),
             ))
         else:
-            self._append("<%s />" % tag_name)
+            self._append("<%s>" % tag_name)
             
     def cdata(self, strg, safe = False):
         """
