@@ -44,10 +44,12 @@ class SimpleDoc(object):
         def __getattr__(self, item):
             raise DocError("DocumentRoot here. You can't access anything here.")
 
-    def __init__(self):
+    def __init__(self, stag_end = ' />'):
         self.result = []
         self.current_tag = self.__class__.DocumentRoot()
         self._append = self.result.append
+        assert stag_end in (' />', '/>', '>') 
+        self._stag_end = stag_end
         
     def tag(self, tag_name, *args, **kwargs):
         """
@@ -202,15 +204,27 @@ class SimpleDoc(object):
         Example::
         
             doc.stag('img', src = '/salmon-plays-piano.jpg')
-            # appends <img src="/salmon-plays-piano.jpg /> to the document
+            # appends <img src="/salmon-plays-piano.jpg" /> to the document
+        
+        If you want to produce self closing tags without the ending slash (HTML5 style),
+        use the stag_end parameter of the SimpleDoc constructor at the creation of the
+        SimpleDoc instance.
+        
+        Example::
+            
+            >>> doc = SimpleDoc(stag_end = '>')
+            >>> doc.stag('br')
+            >>> doc.getvalue()
+            '<br>'
         """
         if args or kwargs:
-            self._append("<%s %s />" % (
+            self._append("<%s %s%s" % (
                 tag_name,
                 dict_to_attrs(_attributes(args, kwargs)),
+                self._stag_end
             ))
         else:
-            self._append("<%s />" % tag_name)
+            self._append("<%s%s" % (tag_name, self._stag_end))
             
     def cdata(self, strg, safe = False):
         """

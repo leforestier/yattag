@@ -113,5 +113,21 @@ class TestSimpledoc(unittest.TestCase):
             )
         )
         
+    def test_stag(self):
+        doc = SimpleDoc()
+        doc.stag('img', src = '/salmon-plays-piano.jpg')
+        self.assertEqual(
+            doc.getvalue(),
+            '<img src="/salmon-plays-piano.jpg" />'
+        )
+        
+        doc = SimpleDoc(stag_end = '>')
+        doc.stag('img', src = '/salmon-plays-piano.jpg')
+        self.assertEqual(
+            doc.getvalue(),
+            '<img src="/salmon-plays-piano.jpg">'
+        )
+        
+        
 if __name__ == '__main__':
     unittest.main()

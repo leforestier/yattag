@@ -18,7 +18,7 @@ class SimpleInput(object):
         self.tpe = tpe
         self.attrs = attrs
         
-    def render(self, defaults, errors, error_wrapper):
+    def render(self, defaults, errors, error_wrapper, stag_end = ' />'):
         lst = []
         attrs = dict(self.attrs)
         error = errors and self.name in errors
@@ -31,7 +31,7 @@ class SimpleInput(object):
         if self.name in defaults:
             attrs['value'] = str(defaults[self.name])
         attrs['name'] = self.name
-        lst.append('<input type="%s" %s />' % (self.tpe, dict_to_attrs(attrs)))
+        lst.append('<input type="%s" %s%s' % (self.tpe, dict_to_attrs(attrs), stag_end))
         
         return ''.join(lst)
         
@@ -47,7 +47,7 @@ class CheckableInput(object):
     def setrank(self, n):
         self.rank = n
     
-    def render(self, defaults, errors, error_wrapper):
+    def render(self, defaults, errors, error_wrapper, stag_end = ' />'):
         lst = []
         attrs = dict(self.attrs)
         if self.rank == 0:
@@ -62,7 +62,7 @@ class CheckableInput(object):
                 
         attrs['name'] = self.name
         
-        lst.append('<input type="%s" %s />' % (self.__class__.tpe, dict_to_attrs(attrs)))
+        lst.append('<input type="%s" %s%s' % (self.__class__.tpe, dict_to_attrs(attrs), stag_end))
 
         return ''.join(lst)
         
@@ -133,7 +133,7 @@ class Option(object):
         self.attrs = attrs
 
     def render(self, defaults, errors, inner_content):
-        selected = ''        
+        selected = False        
         if self.name in defaults:
             if self.multiple:
                 if self.value in defaults[self.name]:
@@ -357,7 +357,7 @@ class Doc(SimpleDoc):
         ): 
             self.asis(
                 self.__class__.SimpleInput(name, type, attrs).render(
-                    self.defaults, self.errors, self.error_wrapper
+                    self.defaults, self.errors, self.error_wrapper, self._stag_end
                 )
             )
             return
@@ -375,7 +375,7 @@ class Doc(SimpleDoc):
             else:
                 raise DocError("Unknown input type: %s" % type)
         
-        self._append(checkable_group.input(attrs).render(self.defaults,self.errors, self.error_wrapper))
+        self._append(checkable_group.input(attrs).render(self.defaults, self.errors, self.error_wrapper, self._stag_end))
         
     def textarea(self, *args, **kwargs):
         "required attribute: 'name'"

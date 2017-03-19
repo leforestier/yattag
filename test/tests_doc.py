@@ -40,6 +40,17 @@ class TestDoc(unittest.TestCase):
             'error' in root[1].attrib['class']
         )
         
+    def test_input_no_slash(self):
+        doc = Doc(stag_end = '>')
+        doc.input('passw', type="password")
+        print(doc.getvalue())
+        self.assertTrue(
+            doc.getvalue() in (
+                '<input name="passw" type="password">',
+                '<input type="password" name="passw">'
+            )
+        )
+        
     def test_textarea(self):
         doc, tag, text = Doc(
             defaults = {
