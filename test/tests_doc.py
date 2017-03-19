@@ -43,7 +43,6 @@ class TestDoc(unittest.TestCase):
     def test_input_no_slash(self):
         doc = Doc(stag_end = '>')
         doc.input('passw', type="password")
-        print(doc.getvalue())
         self.assertTrue(
             doc.getvalue() in (
                 '<input name="passw" type="password">',
