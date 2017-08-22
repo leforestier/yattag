@@ -94,6 +94,29 @@ class TestDoc(unittest.TestCase):
             KeyError, lambda: root[0].attrib['checked']
         )
         
+    def test_input_checkbox(self):
+        doc, tag, text = Doc(defaults = {'gift-wrap': 'yes'}).tagtext()
+        with tag('body'):
+            doc.input('gift-wrap', type='checkbox', value = "yes")
+        root = ET.fromstring(doc.getvalue())
+        self.assertEqual(
+            root[0].attrib['checked'], 'checked'
+        )
+        
+        doc, tag, text = Doc(defaults = {'extras': ['fast-shipping', 'gift-wrap']}).tagtext()
+        with tag('body'):
+            for extra in ('fast-shipping', 'extension-of-warranty', 'gift-wrap'):
+                doc.input('extras', type="checkbox", value = extra)
+        root = ET.fromstring(doc.getvalue())
+        self.assertEqual(
+            root[0].attrib['checked'], 'checked'
+        )
+        self.assertRaises(
+            KeyError, lambda: root[1].attrib['checked']
+        )
+        self.assertEqual(
+            root[2].attrib['checked'], 'checked'
+        )
        
 if __name__ == '__main__':
     unittest.main()

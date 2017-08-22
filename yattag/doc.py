@@ -47,6 +47,26 @@ class CheckableInput(object):
     def setrank(self, n):
         self.rank = n
     
+    @classmethod
+    def match(cls, default, value):
+        if isinstance(default, str):
+            return value == default
+        elif isinstance(default, (tuple, list, set)):
+            return value in default
+        return False
+     
+    def checked(self, defaults):
+        try:
+            default = defaults[self.name]
+        except KeyError:
+            return False
+        try:
+            value = self.attrs['value']
+        except KeyError:
+            return False
+        return self.__class__.match(default, value)    
+        
+    
     def render(self, defaults, errors, error_wrapper, stag_end = ' />'):
         lst = []
         attrs = dict(self.attrs)
@@ -57,7 +77,7 @@ class CheckableInput(object):
                 lst.append(error_wrapper[1])
                 _add_class(attrs, 'error')
         
-        if self.name in defaults and 'value' in self.attrs and defaults[self.name] == self.attrs['value']:
+        if self.checked(defaults):
             attrs['checked'] = 'checked'
                 
         attrs['name'] = self.name
@@ -73,6 +93,11 @@ class CheckboxInput(CheckableInput):
 class RadioInput(CheckableInput):
     tpe = 'radio'
     
+    @classmethod
+    def match(cls, default, value):
+        if isinstance(default, str):
+            return value == default
+        return False
 
 def groupclass(inputclass):
 
