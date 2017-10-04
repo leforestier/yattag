@@ -1,5 +1,7 @@
 __all__ = ['SimpleDoc']
 
+from yattag.attr_substitution import AttrSubstitution
+
 class SimpleDoc(object):
 
     """
@@ -384,22 +386,17 @@ def dict_to_attrs(dct):
     )
     
 def _attributes(args, kwargs):
-    lst = []
-    for arg in args:
+    def tr(arg):
         if isinstance(arg, tuple):
-            lst.append(arg)
+            return arg
         elif isinstance(arg, str):
-            lst.append((arg, ATTR_NO_VALUE))
+            return (arg, ATTR_NO_VALUE)
         else:
             raise ValueError(
                 "Couldn't make a XML or HTML attribute/value pair out of %s."
                 % repr(arg)
             )
-    result = dict(lst)
-    result.update(
-        (('class', value) if key == 'klass' else (key, value))
-        for key,value in kwargs.items()
-    )
+
+    result = dict(map(tr, args))
+    result.update((AttrSubstitution.translate(key), value) for key, value in kwargs.items())
     return result
-
-
