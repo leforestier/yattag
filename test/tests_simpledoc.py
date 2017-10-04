@@ -1,6 +1,8 @@
 import unittest
-from yattag import SimpleDoc
 import xml.etree.ElementTree as ET
+
+from yattag import SimpleDoc, add_svg_attributes, reset_attr_substitutions
+
 
 class TestSimpledoc(unittest.TestCase):
 
@@ -127,7 +129,21 @@ class TestSimpledoc(unittest.TestCase):
             doc.getvalue(),
             '<img src="/salmon-plays-piano.jpg">'
         )
-        
-        
+
+    def test_attributes_substitution(self):
+        doc = SimpleDoc()
+
+        doc.stag('rect', stroke_width=1)
+        add_svg_attributes()
+        doc.stag('circle', stroke_width=2)
+        reset_attr_substitutions()
+        doc.stag('line', stroke_width=3)
+
+        self.assertEqual(
+            doc.getvalue(),
+            '<rect stroke_width="1" /><circle stroke-width="2" /><line stroke_width="3" />'
+        )
+
+    
 if __name__ == '__main__':
     unittest.main()

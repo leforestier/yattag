@@ -60,3 +60,4 @@ __version__ = '1.9.0'
 from yattag.simpledoc import SimpleDoc
 from yattag.doc import Doc
 from yattag.indentation import indent
+from yattag.attr_substitution import add_svg_attributes, reset_attr_substitutions
