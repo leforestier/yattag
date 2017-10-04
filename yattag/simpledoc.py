@@ -1,6 +1,6 @@
 __all__ = ['SimpleDoc']
 
-from attr_substitution import AttrSubstitution
+from yattag.attr_substitution import AttrSubstitution
 
 class SimpleDoc(object):
 
