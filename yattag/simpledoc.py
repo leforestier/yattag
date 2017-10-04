@@ -398,5 +398,5 @@ def _attributes(args, kwargs):
             )
 
     result = dict(map(tr, args))
-    result.update((AttrSubstitution.translate(key), value) for key, value in kwargs.iteritems())
+    result.update((AttrSubstitution.translate(key), value) for key, value in kwargs.items())
     return result
