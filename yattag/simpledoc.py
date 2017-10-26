@@ -1,5 +1,8 @@
 __all__ = ['SimpleDoc']
 
+class DocError(Exception):
+    pass
+
 class SimpleDoc(object):
 
     """
@@ -41,8 +44,16 @@ class SimpleDoc(object):
                 self.doc.current_tag = self.parent_tag
          
     class DocumentRoot(object):
+    
+        class DocumentRootError(DocError, AttributeError):
+            # Raising an AttributeError on __getattr__ instead of just a DocError makes it compatible
+            # with the pickle module (some users asked for pickling of SimpleDoc instances).
+            # I also keep the DocError from earlier versions to avoid possible compatibility issues
+            # with existing code.
+            pass
+    
         def __getattr__(self, item):
-            raise DocError("DocumentRoot here. You can't access anything here.")
+            raise SimpleDoc.DocumentRoot.DocumentRootError("DocumentRoot here. You can't access anything here.")
 
     def __init__(self, stag_end = ' />'):
         self.result = []
@@ -346,9 +357,6 @@ class SimpleDoc(object):
                 del self.current_tag.attrs['class']
             except KeyError:
                 pass
-
-class DocError(Exception):
-    pass
           
 def html_escape(s):
     if isinstance(s,(int,float)):
