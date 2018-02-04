@@ -1,6 +1,13 @@
 import re
 
-__all__ = ['indent']
+# options for the indentation of text inside of xml or html nodes
+# solving issue https://github.com/leforestier/yattag/issues/38
+# while maintaining compatibility with older versions of yattag
+NO = False
+FIRST_LINE = True
+EACH_LINE = 2
+
+__all__ = ['indent', 'NO', 'FIRST_LINE', 'EACH_LINE']
 
 class TokenMeta(type):
 
@@ -215,8 +222,9 @@ class TagMatcher(object):
     def directly_contains_text(self, i):
         return i in self.direct_text_parents
                 
+new_line_rgx= re.compile(r'(\r?\n)', flags = re.MULTILINE)
             
-def indent(string, indentation = '  ', newline = '\n', indent_text = False, blank_is_text = False):
+def indent(string, indentation = '  ', newline = '\n', indent_text = NO, blank_is_text = False):
     """
     takes a string representing a html or xml document and returns
      a well indented version of it
@@ -227,18 +235,9 @@ def indent(string, indentation = '  ', newline = '\n', indent_text = False, blan
     - newline: the string to be use for new lines
       (default to  '\\n', could be set to '\\r\\n' for example)
     - indent_text:
+        the value of this option should one of yattag.NO, yattag.FIRST_LINE or yattag.EACH_LINE
         
-        if True, text nodes will be indented:
-        
-            <p>Hello</p>
-            
-            would result in
-            
-            <p>
-                hello
-            </p>
-        
-        if False, text nodes won't be indented, and the content
+        if indent_text is NO, text nodes won't be indented, and the content
          of any node directly containing text will be unchanged:
          
             <p>Hello</p> will be unchanged
@@ -247,6 +246,50 @@ def indent(string, indentation = '  ', newline = '\n', indent_text = False, blan
              since ' world!' is directly contained in the <p> node.
             
             This is the default since that's generally what you want for HTML.
+        
+        if indent_text is FIRST_LINE, the first line of text nodes will be indented:
+        
+            <p>Hello</p>
+            
+            would result in
+            
+            <p>
+              hello
+            </p>
+            
+            and:
+            
+            <p>Hello,
+            where are the keys?</p>
+            
+            would result in
+            
+            <p>
+              hello,
+            where are the keys?
+            </p>
+            
+        if indent_text is EACH_LINE, each line inside the text nodes will be indented:
+        
+            <code class="scala-source">
+            object HelloWorld {
+                def main(args: Array[String]) {
+                    println("Hello, world!")
+                }
+            }
+            </code>
+            
+            would result in
+            
+            <code class="scala-source">
+  
+              object HelloWorld {
+                  def main(args: Array[String]) {
+                      println("Hello, world!")
+                  }
+              }
+              
+            </code>
         
     - blank_is_text:
         if False, completely blank texts are ignored. That is the default.
@@ -266,13 +309,18 @@ def indent(string, indentation = '  ', newline = '\n', indent_text = False, blan
             append(newline)
         for i in range(level):
             append(indentation)
+    def _append_text(text):
+        if not sameline:
+            _indent()
+        if indent_text is EACH_LINE:
+            append(new_line_rgx.sub(r'\1' + indentation * level, text))
+        else:
+            append(text)       
     for i,token in enumerate(tokens):
         tpe = type(token)
         if tpe is Text:
             if blank_is_text or not token.isblank:
-                if not sameline:
-                    _indent()
-                append(token.content)
+                _append_text(token.content)
                 was_just_opened = False
         elif tpe is OpenTag and ismatched(i):
             was_just_opened = True
@@ -280,7 +328,7 @@ def indent(string, indentation = '  ', newline = '\n', indent_text = False, blan
                 sameline += 1
             else:
                 _indent()
-            if not indent_text and directly_contains_text(i):
+            if indent_text is NO and directly_contains_text(i):
                 sameline = sameline or 1
             append(token.content)
             level += 1

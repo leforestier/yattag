@@ -59,4 +59,4 @@ __version__ = '1.9.2'
 
 from yattag.simpledoc import SimpleDoc
 from yattag.doc import Doc
-from yattag.indentation import indent
+from yattag.indentation import indent, NO, FIRST_LINE, EACH_LINE 

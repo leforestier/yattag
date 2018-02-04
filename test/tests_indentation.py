@@ -1,9 +1,14 @@
 import unittest
+import yattag
 from yattag import indent
+
 
 class TestIndent(unittest.TestCase):
 
     def setUp(self):
+    
+        self.maxDiff = None
+    
         self.targets = {
             '<p>aaa</p>': '<p>aaa</p>',
             '<html><body><p>1</p><p>2</p></body></html>': """\
@@ -58,6 +63,80 @@ class TestIndent(unittest.TestCase):
 </p>"""
         }
         
+        self.source_code = """\
+<body><code>\
+package com.google.android.gms.auth.api.signin.internal;
+
+import android.os.Parcel;
+import android.os.Parcelable.Creator;
+import android.text.TextUtils;
+import com.google.android.gms.auth.api.signin.EmailSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.internal.safeparcel.SafeParcelable;
+import com.google.android.gms.common.internal.zzx;
+import org.json.JSONObject;
+
+public final class SignInConfiguration implements SafeParcelable {
+    public static final Creator&lt;SignInConfiguration&gt; CREATOR = new zzp();
+    final int versionCode;
+    private final String zzXL;
+    private EmailSignInOptions zzXM;
+    private GoogleSignInOptions zzXN;
+    private String zzXO;
+    private String zzXd;
+
+    SignInConfiguration(int versionCode, String consumerPkgName, String serverClientId, EmailSignInOptions emailConfig, GoogleSignInOptions googleConfig, String apiKey) {
+        this.versionCode = versionCode;
+        this.zzXL = zzx.zzcM(consumerPkgName);
+        this.zzXd = serverClientId;
+        this.zzXM = emailConfig;
+        this.zzXN = googleConfig;
+        this.zzXO = apiKey;
+    }
+
+    public SignInConfiguration(String consumerPkgName) {
+        this(2, consumerPkgName, null, null, null, null);
+    }</code></body>
+"""
+
+        self.source_code_target = """\
+<body>
+    <code>
+        package com.google.android.gms.auth.api.signin.internal;
+        
+        import android.os.Parcel;
+        import android.os.Parcelable.Creator;
+        import android.text.TextUtils;
+        import com.google.android.gms.auth.api.signin.EmailSignInOptions;
+        import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+        import com.google.android.gms.common.internal.safeparcel.SafeParcelable;
+        import com.google.android.gms.common.internal.zzx;
+        import org.json.JSONObject;
+        
+        public final class SignInConfiguration implements SafeParcelable {
+            public static final Creator&lt;SignInConfiguration&gt; CREATOR = new zzp();
+            final int versionCode;
+            private final String zzXL;
+            private EmailSignInOptions zzXM;
+            private GoogleSignInOptions zzXN;
+            private String zzXO;
+            private String zzXd;
+        
+            SignInConfiguration(int versionCode, String consumerPkgName, String serverClientId, EmailSignInOptions emailConfig, GoogleSignInOptions googleConfig, String apiKey) {
+                this.versionCode = versionCode;
+                this.zzXL = zzx.zzcM(consumerPkgName);
+                this.zzXd = serverClientId;
+                this.zzXM = emailConfig;
+                this.zzXN = googleConfig;
+                this.zzXO = apiKey;
+            }
+        
+            public SignInConfiguration(String consumerPkgName) {
+                this(2, consumerPkgName, null, null, null, null);
+            }
+    </code>
+</body>"""
+        
 
 
     def test_indent(self):
@@ -80,6 +159,13 @@ class TestIndent(unittest.TestCase):
                 indent(source, indentation = "    ", indent_text = True),
                 target
             )
+            
+    def test_indent_each_line(self):
+        self.assertEqual(
+            indent(self.source_code, indentation = "    ", indent_text = yattag.EACH_LINE),
+            self.source_code_target
+        )
+        
                 
 
 
