@@ -388,7 +388,7 @@ def dict_to_attrs(dct):
     return ' '.join(
         (key if value is ATTR_NO_VALUE
         else '%s="%s"' % (key, attr_escape(value)))
-        for key,value in dct.items()
+        for key,value in dct.items() if value != None
     )
     
 def _attributes(args, kwargs):
