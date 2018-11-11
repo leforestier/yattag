@@ -50,7 +50,17 @@ class TestIndent(unittest.TestCase):
 <a>
     <b/>
     <b/>
-</a>'''
+</a>''',
+    """\
+<test_processing_instruction>
+<?xml-stylesheet type="text/css" href="..\..\..\..\..\..\..\SharedResourceFiles\MAIN\Stylesheets\CSS\dita_branded_preview.css" title="Branded New"?>
+<?without_content?>
+</test_processing_instruction>""":
+"""\
+<test_processing_instruction>
+    <?xml-stylesheet type="text/css" href="..\..\..\..\..\..\..\SharedResourceFiles\MAIN\Stylesheets\CSS\dita_branded_preview.css" title="Branded New"?>
+    <?without_content?>
+</test_processing_instruction>"""
         }
         
         self.targets_indent_text = { '<p>Hello <i>world</i>!</p>': """\

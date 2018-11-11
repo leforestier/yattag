@@ -91,6 +91,9 @@ class XMLDeclaration(Token):
         tag_name_key = 'xmldecl_ignore',
         tag_name_rgx = r'\?\s*xml'
     ) + r'\?\s*>'
+    
+class XMLProcessingInstruction(Token):
+    regex = r'<\?(?!xml\s)[^?/><"\s]+(\s[^?>]*)?\?>'
 
 class NamedTagTokenMeta(TokenMeta):
     def __new__(cls, name, bases, attrs):
@@ -107,7 +110,7 @@ class NamedTagTokenMeta(TokenMeta):
 NamedTagTokenBase = NamedTagTokenMeta(
     'NamedTagTokenBase',
     (Token,),
-    {'tag_name_rgx': r'[^/><"\s]+'}
+    {'tag_name_rgx': r'[^?/><"\s]+'}
 )
 
 class NamedTagToken(NamedTagTokenBase):
@@ -161,7 +164,7 @@ class Tokenizer(object):
         return result
         
 tokenize = Tokenizer(
-    (Text, Comment, CData, Doctype, XMLDeclaration, Script, Style, OpenTag, SelfTag, CloseTag)
+    (Text, Comment, CData, Doctype, XMLDeclaration, Script, Style, OpenTag, SelfTag, CloseTag, XMLProcessingInstruction)
 ).tokenize
 
 class TagMatcher(object):
