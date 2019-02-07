@@ -233,9 +233,10 @@ class SimpleDoc(object):
             # you get: <td data-search="lemon" data-order="1384">Citrus Limon</td>
         
         """
-        args = [('data-%s' % key, value) for (key, value) in args]
-        kwargs = {('data-%s' % key): value for (key, value) in kwargs.items()}
-        self.current_tag.attrs.update(_attributes(args, kwargs))
+        self.attr(
+            *(('data-%s' % key, value) for (key, value) in args),
+            **dict(('data-%s' % key, value) for (key, value) in kwargs.items())
+        )
         
     def stag(self, tag_name, *args, **kwargs):
         """
