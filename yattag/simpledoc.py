@@ -203,6 +203,41 @@ class SimpleDoc(object):
         """
         self.current_tag.attrs.update(_attributes(args, kwargs))
         
+    def data(self, *args, **kwargs):
+        """
+        sets HTML/XML data attribute(s) on the current tag
+        HTML/XML data attributes are supplied as (key, value) pairs of strings,
+        or as keyword arguments.
+        The values of the keyword arguments should be strings.
+        They are escaped for use as HTML attributes
+        (the " character is replaced with &quot;)
+        Note that, instead, you can set html/xml data attributes by passing them as
+        keyword arguments to the `tag` method.
+        
+        Examples::
+            
+            with tag('h1'):
+                text('Welcome!')
+                doc.data(msg='welcome-message')
+            
+            # you get: <h1 data-msg="welcome-message">Welcome!</h1>
+        
+            with tag('td'):
+                text('Citrus Limon')
+                doc.data(
+                    ('search', 'lemon'),
+                    ('order', '1384')
+                )
+                
+                
+            # you get: <td data-search="lemon" data-order="1384">Citrus Limon</td>
+        
+        """
+        self.attr(
+            *(('data-%s' % key, value) for (key, value) in args),
+            **dict(('data-%s' % key, value) for (key, value) in kwargs.items())
+        )
+        
     def stag(self, tag_name, *args, **kwargs):
         """
         appends a self closing tag to the document
