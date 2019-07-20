@@ -9,7 +9,7 @@ setup(
     packages=['yattag'],
     author = 'Benjamin Le Forestier',
     author_email = 'benjamin@leforestier.org',
-    url = 'http://www.yattag.org',
+    url = 'https://www.yattag.org',
     keywords = ["html", "template", "templating", "xml", "document", "form", "rendering"],
     description = """\
 Generate HTML or XML in a pythonic way. Pure python alternative to web template engines.\

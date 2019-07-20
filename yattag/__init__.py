@@ -51,7 +51,7 @@ Html form rendering example with default values
 
 Full tutorial on yattag.org_
 
-.. _yattag.org: http://www.yattag.org
+.. _yattag.org: https://www.yattag.org
 """
 
 __author__ = "Benjamin Le Forestier (benjamin@leforestier.org)"

@@ -23,7 +23,7 @@ Nested html tags, no need to close tags.
 
     print(doc.getvalue())
 
-    
+
 Html form rendering
 -------------------
 
@@ -54,7 +54,7 @@ Example with default values
                 ("coffee", "Ethiopian coffee")
             ):
                 with doc.option(value = value):
-                    text(description) 
+                    text(description)
         doc.stag('input', type = "submit", value = "Validate")
 
     print(doc.getvalue())
@@ -85,11 +85,9 @@ Example with default values and errors
         doc.stag('input', type = 'submit', value = 'Send my message')
 
     print(doc.getvalue())
-    
+
 Full tutorial on yattag.org_
 
 GitHub repo: https://github.com/leforestier/yattag
 
-.. _yattag.org: http://www.yattag.org
-    
-
+.. _yattag.org: https://www.yattag.org
