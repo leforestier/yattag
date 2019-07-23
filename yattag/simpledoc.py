@@ -60,14 +60,14 @@ class SimpleDoc(object):
     _newline_rgx = re.compile(r'\r?\n')
 
     def __init__(self, stag_end = ' />', nl2br = False):
-        """
+        r"""
             stag_end:
                 the string terminating self closing tags.
                 This determines what tags produced using the `stag` method will look like.
                 For example, if you set `stag_end='>'`, then `doc.stag('hr')` will
                 produce a `<hr>` tag.
                 If you set `stag_end=' />'` (the default), then `doc.stag('hr')` would
-                instead produce a `<hr />' tag.
+                instead produce a `<hr />` tag.
                 If you set `nl2br=True`, then the `text` method will also
                 produce `<br>` or `<br />` tags according to this preference when encountering
                 new lines.
@@ -124,7 +124,7 @@ class SimpleDoc(object):
 
 
     def text(self, *strgs):
-        """
+        r"""
         appends 0 or more strings to the document
         the strings are escaped for use as text in html documents, that is,
         & becomes &amp;
