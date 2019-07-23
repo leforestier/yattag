@@ -60,6 +60,27 @@ class SimpleDoc(object):
     _newline_rgx = re.compile(r'\r?\n')
 
     def __init__(self, stag_end = ' />', nl2br = False):
+        """
+            stag_end:
+                the string terminating self closing tags.
+                This determines what tags produced using the `stag` method will look like.
+                For example, if you set `stag_end='>'`, then `doc.stag('hr')` will
+                produce a `<hr>` tag.
+                If you set `stag_end=' />'` (the default), then `doc.stag('hr')` would
+                instead produce a `<hr />' tag.
+                If you set `nl2br=True`, then the `text` method will also
+                produce `<br>` or `<br />` tags according to this preference when encountering
+                new lines.
+                Defaults to ' />'.
+
+            nl2br:
+                if set to True, the `text` method will turn new lines
+                ('\n' or '\r\n' sequences) in the input to `<br />` html tags,
+                or possibly to `<br>` tags if using the `stag_end` parameter to this effect.
+                (see explanations about `stag_end` above).
+                Defaults to False (new lines are not replaced).
+
+        """
         self.result = []
         self.current_tag = self.__class__.DocumentRoot()
         self._append = self.result.append
@@ -98,7 +119,6 @@ class SimpleDoc(object):
 
             # you get: <td data-search="lemon" data-order="1384" id="16">Citrus Limon</td>
 
-
         """
         return self.__class__.Tag(self, tag_name, _attributes(args, kwargs))
 
@@ -116,6 +136,29 @@ class SimpleDoc(object):
             username = 'Max'
             text('Hello ', username, '!') # appends "Hello Max!" to the current node
             text('16 > 4') # appends "16 &gt; 4" to the current node
+
+        New lines ('\n' or '\r\n' sequences) are left intact, unless you have set the
+        nl2br option to True when creating the SimpleDoc instance. Then they would be
+        replaced with `<br />` tags (or `<br>` tags if using the `stag_end` option
+        of the SimpleDoc constructor as shown in the example below).
+
+        Example::
+
+            >>> doc = SimpleDoc()
+            >>> doc.text('pistachio\nice cream')
+            >>> doc.getvalue()
+            'pistachio\nice cream'
+
+            >>> doc = SimpleDoc(nl2br=True)
+            >>> doc.text('pistachio\nice cream')
+            >>> doc.getvalue()
+            'pistachio<br />ice cream'
+
+            >>> doc = SimpleDoc(nl2br=True, stag_end='>')
+            >>> doc.text('pistachio\nice cream')
+            >>> doc.getvalue()
+            'pistachio<br>ice cream'
+
         """
         for strg in strgs:
             transformed_string = html_escape(strg)
