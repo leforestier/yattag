@@ -7,6 +7,9 @@ setup(
     name='yattag',
     version='1.12.2',
     packages=['yattag'],
+    install_requires=[
+        'typing',
+    ],
     author = 'Benjamin Le Forestier',
     author_email = 'benjamin@leforestier.org',
     url = 'https://www.yattag.org',
