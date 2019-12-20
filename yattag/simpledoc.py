@@ -1,6 +1,14 @@
 __all__ = ['SimpleDoc']
 
 import re
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Set
+from typing import Tuple
+from typing import Union
+from typing import cast
 
 class DocError(Exception):
     pass
@@ -22,18 +30,21 @@ class SimpleDoc(object):
 
     class Tag(object):
         def __init__(self, doc, name, attrs): # name is the tag name (ex: 'div')
+            # type: (SimpleDoc, str, Dict[str, Union[str, int, float]]) -> None
 
             self.doc = doc
             self.name = name
             self.attrs = attrs
 
         def __enter__(self):
+            # type: () -> None
             self.parent_tag = self.doc.current_tag
             self.doc.current_tag = self
             self.position = len(self.doc.result)
             self.doc._append('')
 
         def __exit__(self, tpe, value, traceback):
+            # type: (Any, Any, Any) -> None
             if value is None:
                 if self.attrs:
                     self.doc.result[self.position] = "<%s %s>" % (
@@ -55,11 +66,13 @@ class SimpleDoc(object):
             pass
 
         def __getattr__(self, item):
+            # type: (str) -> Any
             raise SimpleDoc.DocumentRoot.DocumentRootError("DocumentRoot here. You can't access anything here.")
 
     _newline_rgx = re.compile(r'\r?\n')
 
     def __init__(self, stag_end = ' />', nl2br = False):
+        # type: (str, bool) -> None
         r"""
             stag_end:
                 the string terminating self closing tags.
@@ -81,8 +94,8 @@ class SimpleDoc(object):
                 Defaults to False (new lines are not replaced).
 
         """
-        self.result = []
-        self.current_tag = self.__class__.DocumentRoot()
+        self.result = [] # type: List[Any]
+        self.current_tag = self.__class__.DocumentRoot() # type: Any
         self._append = self.result.append
         assert stag_end in (' />', '/>', '>')
         self._stag_end = stag_end
@@ -90,6 +103,7 @@ class SimpleDoc(object):
         self._nl2br = nl2br
 
     def tag(self, tag_name, *args, **kwargs):
+        # type: (str, Tuple[str, Union[str, int, float]], Union[str, int, float]) -> Tag
         """
         opens a HTML/XML tag for use inside a `with` statement
         the tag is closed when leaving the `with` block
@@ -124,6 +138,7 @@ class SimpleDoc(object):
 
 
     def text(self, *strgs):
+        # type: (str) -> None
         r"""
         appends 0 or more strings to the document
         the strings are escaped for use as text in html documents, that is,
@@ -173,6 +188,7 @@ class SimpleDoc(object):
                 self._append(transformed_string)
 
     def line(self, tag_name, text_content, *args, **kwargs):
+        # type: (str, str, Tuple[str, Union[str, int, float]], Union[str, int, float]) -> None
         """
         Shortcut to write tag nodes that contain only text.
         For example, in order to obtain::
@@ -205,6 +221,7 @@ class SimpleDoc(object):
             self.text(text_content)
 
     def asis(self, *strgs):
+        # type: (str) -> None
         """
         appends 0 or more strings to the documents
         contrary to the `text` method, the strings are appended "as is"
@@ -222,9 +239,11 @@ class SimpleDoc(object):
             self._append(strg)
 
     def nl(self):
+        # type: () -> None
         self._append('\n')
 
     def attr(self, *args, **kwargs):
+        # type: (Tuple[str, Union[str, int, float]], Union[str, int, float]) -> None
         """
         sets HTML/XML attribute(s) on the current tag
         HTML/XML attributes are supplied as (key, value) pairs of strings,
@@ -262,6 +281,7 @@ class SimpleDoc(object):
         self.current_tag.attrs.update(_attributes(args, kwargs))
 
     def data(self, *args, **kwargs):
+        # type: (Tuple[str, Union[str, int, float]], Union[str, int, float]) -> None
         """
         sets HTML/XML data attribute(s) on the current tag
         HTML/XML data attributes are supplied as (key, value) pairs of strings,
@@ -297,6 +317,7 @@ class SimpleDoc(object):
         )
 
     def stag(self, tag_name, *args, **kwargs):
+        # type: (str, Tuple[str, Union[str, int, float]], Union[str, int, float]) -> None
         """
         appends a self closing tag to the document
         html/xml attributes can be supplied as keyword arguments,
@@ -331,6 +352,7 @@ class SimpleDoc(object):
             self._append("<%s%s" % (tag_name, self._stag_end))
 
     def cdata(self, strg, safe = False):
+        # type: (str, bool) -> None
         """
         appends a CDATA section containing the supplied string
 
@@ -348,12 +370,14 @@ class SimpleDoc(object):
         self._append(']]>')
 
     def getvalue(self):
+        # type: () -> str
         """
         returns the whole document as a single string
         """
-        return ''.join(self.result)
+        return cast(str, ''.join(self.result))
 
     def tagtext(self):
+        # type: () -> Tuple[SimpleDoc, Any, Any]
         """
         return a triplet composed of::
             . the document itself
@@ -373,6 +397,7 @@ class SimpleDoc(object):
         return self, self.tag, self.text
 
     def ttl(self):
+        # type: () -> Tuple[SimpleDoc, Any, Any, Any]
         """
         returns a quadruplet composed of::
             . the document itself
@@ -394,6 +419,7 @@ class SimpleDoc(object):
         return self, self.tag, self.text, self.line
 
     def add_class(self, *classes):
+        # type: (str) -> None
         """
         adds one or many elements to the html "class" attribute of the current tag
         Example::
@@ -412,6 +438,7 @@ class SimpleDoc(object):
         )
 
     def discard_class(self, *classes):
+        # type: (str) -> None
         """
         remove one or many elements from the html "class" attribute of the current
         tag if they are present (do nothing if they are absent)
@@ -421,6 +448,7 @@ class SimpleDoc(object):
         )
 
     def toggle_class(self, elem, active):
+        # type: (str, bool) -> None
         """
         if active is a truthy value, ensure elem is present inside the html
         "class" attribute of the current tag, otherwise (if active is falsy)
@@ -435,6 +463,7 @@ class SimpleDoc(object):
 
 
     def _get_classes(self):
+        # type: () -> Set[str]
         try:
             current_classes = self.current_tag.attrs['class']
         except KeyError:
@@ -443,6 +472,7 @@ class SimpleDoc(object):
             return set(current_classes.split())
 
     def _set_classes(self, classes_set):
+        # type: (Set[str]) -> None
         if classes_set:
             self.current_tag.attrs['class'] = ' '.join(classes_set)
         else:
@@ -452,6 +482,7 @@ class SimpleDoc(object):
                 pass
 
 def html_escape(s):
+    # type: (Union[str, int, float]) -> str
     if isinstance(s,(int,float)):
         return str(s)
     try:
@@ -464,6 +495,7 @@ def html_escape(s):
 
 
 def attr_escape(s):
+    # type: (Union[str, int, float]) -> str
     if isinstance(s,(int,float)):
         return str(s)
     try:
@@ -478,6 +510,7 @@ def attr_escape(s):
 ATTR_NO_VALUE = object()
 
 def dict_to_attrs(dct):
+    # type: (Dict[str, Union[str, int, float]]) -> str
     return ' '.join(
         (key if value is ATTR_NO_VALUE
         else '%s="%s"' % (key, attr_escape(value)))
@@ -485,7 +518,8 @@ def dict_to_attrs(dct):
     )
 
 def _attributes(args, kwargs):
-    lst = []
+    # type: (Any, Any) -> Dict[str, Any]
+    lst = [] # type: List[Any]
     for arg in args:
         if isinstance(arg, tuple):
             lst.append(arg)
