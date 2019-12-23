@@ -94,7 +94,7 @@ class SimpleDoc(object):
                 Defaults to False (new lines are not replaced).
 
         """
-        self.result = [] # type: List[Any]
+        self.result = [] # type: List[str]
         self.current_tag = self.__class__.DocumentRoot() # type: Any
         self._append = self.result.append
         assert stag_end in (' />', '/>', '>')
@@ -374,7 +374,7 @@ class SimpleDoc(object):
         """
         returns the whole document as a single string
         """
-        return cast(str, ''.join(self.result))
+        return ''.join(self.result)
 
     def tagtext(self):
         # type: () -> Tuple[SimpleDoc, Any, Any]
@@ -510,7 +510,7 @@ def attr_escape(s):
 ATTR_NO_VALUE = object()
 
 def dict_to_attrs(dct):
-    # type: (Dict[str, Union[str, int, float]]) -> str
+    # type: (Dict[str, Any]) -> str
     return ' '.join(
         (key if value is ATTR_NO_VALUE
         else '%s="%s"' % (key, attr_escape(value)))

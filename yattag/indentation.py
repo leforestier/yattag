@@ -17,7 +17,7 @@ __all__ = ['indent', 'NO', 'FIRST_LINE', 'EACH_LINE']
 
 class TokenMeta(type):
 
-    _token_classes = {}  # type: Dict[str, Any]
+    _token_classes = {}  # type: Dict[str, 'TokenBase']
 
     def __new__(cls, name, bases, attrs):
         # type: (str, Tuple[Any], Dict[str, Any]) -> Any

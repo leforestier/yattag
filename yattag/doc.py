@@ -488,7 +488,7 @@ class Doc(SimpleDoc):
             self.result[position] = render_function(
                 dict((name, self.errors[name]) for name in self.errors if name not in self._fields)
             )
-        return cast(str, ''.join(self.result))
+        return ''.join(self.result)
 
 def _add_class(dct, klass):
     # type: (Dict[str, Any], str) -> None
