@@ -1,4 +1,10 @@
 import re
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Set
+from typing import Tuple
+from typing import Union
 
 # options for the indentation of text inside of xml or html nodes
 # solving issue https://github.com/leforestier/yattag/issues/38
@@ -11,34 +17,39 @@ __all__ = ['indent', 'NO', 'FIRST_LINE', 'EACH_LINE']
 
 class TokenMeta(type):
 
-    _token_classes = {}
+    _token_classes = {}  # type: Dict[str, 'TokenBase']
 
     def __new__(cls, name, bases, attrs):
+        # type: (str, Tuple[Any], Dict[str, Any]) -> Any
         kls = type.__new__(cls, name, bases, attrs)
         cls._token_classes[name] = kls
         return kls
 
     @classmethod
     def getclass(cls, name):
+        # type: (str) -> Any
         return cls._token_classes[name]
 
 # need to proceed that way for Python 2/3 compatility:
-TokenBase = TokenMeta('TokenBase', (object,), {})
+TokenBase = TokenMeta('TokenBase', (object,), {}) # type: Any
 
-class Token(TokenBase):
-    regex = None
+class Token(TokenBase): # type: ignore
+    regex = None # type: Union[None, str]
 
     def __init__(self, groupdict):
+        # type: (Dict[str, Any]) -> None
         self.content = groupdict[self.__class__.__name__]
 
 class Text(Token):
     regex = '[^<>]+'
     def __init__(self, *args, **kwargs):
+        # type: (Dict[str, Any], Any) -> None
         super(Text, self).__init__(*args, **kwargs)
-        self._isblank = None
+        self._isblank = None # type: Union[None, bool]
 
     @property
     def isblank(self):
+        # type: () -> bool
         if self._isblank is None:
             self._isblank = not self.content.strip()
         return self._isblank
@@ -97,6 +108,7 @@ class XMLProcessingInstruction(Token):
 
 class NamedTagTokenMeta(TokenMeta):
     def __new__(cls, name, bases, attrs):
+        # type: (str, Tuple[Any], Dict[str, Any]) -> Any
         kls = TokenMeta.__new__(cls, name, bases, attrs)
         if name not in('NamedTagTokenBase', 'NamedTagToken'):
             kls.tag_name_key = 'tag_name_%s' % name
@@ -113,8 +125,9 @@ NamedTagTokenBase = NamedTagTokenMeta(
     {'tag_name_rgx': r'[^?/><"\s]+'}
 )
 
-class NamedTagToken(NamedTagTokenBase):
+class NamedTagToken(NamedTagTokenBase): # type: ignore
     def __init__(self, groupdict):
+        # type: (Dict[str, Any]) -> None
         super(NamedTagToken, self).__init__(groupdict)
         self.tag_name = groupdict[self.__class__.tag_name_key]
 
@@ -133,11 +146,13 @@ class XMLTokenError(Exception):
 class Tokenizer(object):
 
     def __init__(self, token_classes):
+        # type: (Tuple[Any, ...]) -> None
         self.token_classes = token_classes
         self.token_names = [kls.__name__ for kls in token_classes]
-        self.get_token = None
+        self.get_token = None # type: Any
 
     def _compile_regex(self):
+        # type: () -> None
         self.get_token = re.compile(
             '|'.join(
                 '(?P<%s>%s)' % (klass.__name__, klass.regex) for klass in self.token_classes
@@ -146,9 +161,10 @@ class Tokenizer(object):
         ).match
 
     def tokenize(self, string):
+        # type: (str) -> List[Any]
         if not self.get_token:
             self._compile_regex()
-        result = []
+        result = [] # type: List[Any]
         append = result.append
         start = 0
         l = len(string)
@@ -173,10 +189,12 @@ class TagMatcher(object):
 
     class SameNameMatcher(object):
         def __init__(self):
-            self.unmatched_open = []
-            self.matched = {}
+            # type: () -> None
+            self.unmatched_open = [] # type: List[Any]
+            self.matched = {} # type: Dict[str, Any]
 
         def sigclose(self, i):
+            # type: (Any) -> Any
             if self.unmatched_open:
                 open_tag = self.unmatched_open.pop()
                 self.matched[open_tag] = i
@@ -186,12 +204,14 @@ class TagMatcher(object):
                 return None
 
         def sigopen(self, i):
+            # type: (Any) -> Any
             self.unmatched_open.append(i)
 
     def __init__(self, token_list, blank_is_text = False):
+        # type: (List[Any], bool) -> None
         self.token_list = token_list
-        self.name_matchers = {}
-        self.direct_text_parents = set()
+        self.name_matchers = {} # type: Dict[str, Any]
+        self.direct_text_parents = set() # type: Set[Any]
 
         for i in range(len(token_list)):
             token = token_list[i]
@@ -215,6 +235,7 @@ class TagMatcher(object):
                     self.direct_text_parents.add(current_nodes[-1])
 
     def _get_name_matcher(self, tag_name):
+        # type: (str) -> Any
         try:
             return self.name_matchers[tag_name]
         except KeyError:
@@ -222,14 +243,17 @@ class TagMatcher(object):
             return name_matcher
 
     def ismatched(self, i):
+        # type: (Any) -> bool
         return i in self.name_matchers[self.token_list[i].tag_name].matched
 
     def directly_contains_text(self, i):
+        # type: (Any) -> bool
         return i in self.direct_text_parents
 
 new_line_rgx= re.compile(r'(\r?\n)', flags = re.MULTILINE)
 
 def indent(string, indentation = '  ', newline = '\n', indent_text = NO, blank_is_text = False):
+    # type: (str, str, str, bool, bool) -> Any
     """
     takes a string representing a html or xml document and returns
      a well indented version of it
@@ -303,18 +327,20 @@ def indent(string, indentation = '  ', newline = '\n', indent_text = NO, blank_i
     tag_matcher = TagMatcher(tokens, blank_is_text = blank_is_text)
     ismatched = tag_matcher.ismatched
     directly_contains_text = tag_matcher.directly_contains_text
-    result = []
+    result = [] # type: List[Any]
     append = result.append
     level = 0
     sameline = 0
     was_just_opened = False
     tag_appeared = False
     def _indent():
+        # type: () -> None
         if tag_appeared:
             append(newline)
         for i in range(level):
             append(indentation)
     def _append_text(text):
+        # type: (str) -> None
         if not sameline:
             _indent()
         if indent_text is EACH_LINE:

@@ -1,4 +1,12 @@
 from yattag.simpledoc import dict_to_attrs, html_escape, attr_escape, SimpleDoc, DocError
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
+from typing import Union
+from typing import cast
 
 try:
     range = xrange  # for Python 2/3 compatibility
@@ -14,12 +22,14 @@ class SimpleInput(object):
     """
     
     def __init__(self, name, tpe, attrs):
+        # type: (str, str, Dict[str, Union[str, int, float]]) -> None
         self.name = name
         self.tpe = tpe
         self.attrs = attrs
         
     def render(self, defaults, errors, error_wrapper, stag_end = ' />'):
-        lst = []
+        # type: (Dict[str, str], Dict[str, str], Tuple[str, str], str) -> str
+        lst = [] # List[str]
         attrs = dict(self.attrs)
         error = errors and self.name in errors
         if error:
@@ -40,15 +50,18 @@ class CheckableInput(object):
     tpe = 'checkbox'
 
     def __init__(self, name, attrs):
+        # type: (str, Dict[str, Union[str, int, float]]) -> None
         self.name = name
         self.rank = 0
         self.attrs = attrs
         
     def setrank(self, n):
+        # type: (int) -> None
         self.rank = n
     
     @classmethod
     def match(cls, default, value):
+        # type: (Any, Union[str, int, float]) -> bool
         if isinstance(default, str):
             return value == default
         elif isinstance(default, (tuple, list, set)):
@@ -56,6 +69,7 @@ class CheckableInput(object):
         return False
      
     def checked(self, defaults):
+        # type: (Dict[str, Union[List[str], str]]) -> bool
         try:
             default = defaults[self.name]
         except KeyError:
@@ -68,6 +82,7 @@ class CheckableInput(object):
         
     
     def render(self, defaults, errors, error_wrapper, stag_end = ' />'):
+        # type: (Dict[str, Union[List[str], str]], Any, Tuple[str, str], str) -> str
         lst = []
         attrs = dict(self.attrs)
         if self.rank == 0:
@@ -95,19 +110,23 @@ class RadioInput(CheckableInput):
     
     @classmethod
     def match(cls, default, value):
+        # type: (Any, Union[str, int, float]) -> bool
         if isinstance(default, str):
             return value == default
         return False
 
 def groupclass(inputclass):
+    # type: (Any) -> Any
 
     class InputGroup(object):
 
         def __init__(self, name):
+            # type: (str) -> None
             self.name = name
             self.n_items = 0
             
         def input(self, attrs):
+            # type: (Dict[str, Union[str, int, float]]) -> Any
             input_instance = inputclass(self.name, attrs)
             input_instance.setrank(self.n_items)
             self.n_items += 1
@@ -120,10 +139,12 @@ class ContainerTag(object):
     tag_name = 'textarea' 
 
     def __init__(self, name, attrs):
+        # type: (str, Dict[str, Union[str, int, float]]) -> None
         self.name = name
         self.attrs = attrs
         
     def render(self, defaults, errors, error_wrapper, inner_content = ''):
+        # type: (Dict[str, str], Dict[str, str], Tuple[str, str], str) -> str
         lst = []
         attrs = dict(self.attrs)
         if errors and self.name in errors:
@@ -152,12 +173,14 @@ class Select(ContainerTag):
 
 class Option(object):
     def __init__(self, name, multiple, value, attrs):
+        # type: (str, str, Union[str, int, float], Dict[str, Any]) -> None
         self.name = name
         self.multiple = multiple
         self.value = value
         self.attrs = attrs
 
     def render(self, defaults, errors, inner_content):
+        # type: (Dict[str, str], Dict[str, str], str) -> str
         selected = False        
         if self.name in defaults:
             if self.multiple:
@@ -178,11 +201,13 @@ class Option(object):
         return ''.join(lst)
         
 def _attrs_from_args(required_keys, *args, **kwargs):
+    # type: (Any, Any, Union[str, int, float]) -> List[Any]
     # need to do all this to allow specifying attributes as (key, value) pairs
     # while maintaining backward compatibility with previous versions
     # of yattag, which allowed 'name', 'type', and 'value' attributes
     # as positional or as keyword arguments
     def raise_exception(arg):
+        # type: (Any) -> None
         raise ValueError(
             "Optional attributes should be passed as (key, value) pairs or as keyword arguments."
             "Got %s (type %s)" % (repr(arg), repr(type(arg)))   
@@ -234,6 +259,7 @@ class Doc(SimpleDoc):
     
     class TextareaTag(object):
         def __init__(self, doc, name, attrs):
+            # type: (Doc, str, Dict[str, Union[str, int, float]]) -> None
             # name is the name attribute of the textarea, ex: 'contact_message'
             # for <textarea name="contact_message">
             self.doc = doc
@@ -241,12 +267,14 @@ class Doc(SimpleDoc):
             self.attrs = attrs
         
         def __enter__(self):
+            # type: () -> None
             self.parent_tag = self.doc.current_tag
             self.doc.current_tag = self
             self.position = len(self.doc.result)
             self.doc._append('')
             
         def __exit__(self, tpe, value, traceback):
+            # type: (Any, Any, Any) -> None
             if value is None:
                 inner_content = ''.join(self.doc.result[self.position+1:])
                 del self.doc.result[self.position+1:]              
@@ -262,6 +290,7 @@ class Doc(SimpleDoc):
     
     class SelectTag(object):
         def __init__(self, doc, name, attrs):
+            # type: (Doc, str, Dict[str, Union[str, int, float]]) -> None
             # name is the name attribute of the select, ex: 'color'
             # for <select name="color">
             self.doc = doc
@@ -271,6 +300,7 @@ class Doc(SimpleDoc):
             self.old_current_select = None
                 
         def __enter__(self):
+            # type: () -> None
             self.parent_tag = self.doc.current_tag
             self.doc.current_tag = self
             self.position = len(self.doc.result)
@@ -279,6 +309,7 @@ class Doc(SimpleDoc):
             self.doc.current_select = self
             
         def __exit__(self, tpe, value, traceback):
+            # type: (Any, Any, Any) -> None
             if value is None:
                 inner_content = ''.join(self.doc.result[self.position+1:])
                 del self.doc.result[self.position+1:]
@@ -295,18 +326,21 @@ class Doc(SimpleDoc):
 
     class OptionTag(object):
         def __init__(self, doc, select, value, attrs):
+            # type: (Doc, Doc.SelectTag, str, Dict[str, Union[str, int, float]]) -> None
             self.doc = doc
             self.select = select
             self.attrs = attrs
             self.value = value
 
         def __enter__(self):
+            # type: () -> None
             self.parent_tag = self.doc.current_tag
             self.doc.current_tag = self
             self.position = len(self.doc.result)
             self.doc._append('')
             
         def __exit__(self, tpe, value, traceback):
+            # type: (Any, Any, Any) -> None
             if value is None:
                 inner_content = ''.join(self.doc.result[self.position+1:])
                 del self.doc.result[self.position+1:]
@@ -325,6 +359,7 @@ class Doc(SimpleDoc):
     
     def __init__(self, defaults = None, errors = None,
      error_wrapper = ('<span class="error">', '</span>'), *args, **kwargs):
+        # type: (Optional[Dict[str, str]], Optional[Dict[str, str]], Tuple[str, str], Any, Any) -> None
         """
         creates a Doc instance
         
@@ -362,16 +397,17 @@ class Doc(SimpleDoc):
         self.defaults = defaults or {}
         self.errors = errors or {}
         self.error_wrapper = error_wrapper
-        self.radios = {}
-        self.checkboxes = {}
-        self.current_select = None
+        self.radios = {} # type: Dict[str, Any]
+        self.checkboxes = {} # type: Dict[str, Any]
+        self.current_select = None # type: Optional[Any]
         self.radio_group_class = groupclass(self.__class__.RadioInput)
         self.checkbox_group_class = groupclass(self.__class__.CheckboxInput)
-        self._fields = set()
-        self._detached_errors_pos = []
+        self._fields = set() # type: Set[Any]
+        self._detached_errors_pos = [] # type: List[Any]
     
      
     def input(self, *args, **kwargs):
+        # type: (Any, Union[str, int, float]) -> None
         "required attributes: 'name' and 'type'"
         name, type, attrs = _attrs_from_args(('name', 'type'), *args, **kwargs)
         self._fields.add(name)
@@ -403,18 +439,21 @@ class Doc(SimpleDoc):
         self._append(checkable_group.input(attrs).render(self.defaults, self.errors, self.error_wrapper, self._stag_end))
         
     def textarea(self, *args, **kwargs):
+        # type: (Any, Union[str, int, float]) -> Doc.TextareaTag
         "required attribute: 'name'"
         name, attrs = _attrs_from_args(('name',), *args, **kwargs)
         self._fields.add(name)
         return self.__class__.TextareaTag(self, name, attrs)
         
     def select(self, *args, **kwargs):
+        # type: (Any, Union[str, int, float]) -> Doc.SelectTag
         "required attribute: 'name'"
         name, attrs = _attrs_from_args(('name',), *args, **kwargs)
         self._fields.add(name)
         return self.__class__.SelectTag(self, name, attrs)
         
     def option(self, *args, **kwargs):
+        # type: (Any, Union[str, int, float]) -> Doc.OptionTag
         "required attribute: 'value'"
         if self.current_select:
             value, attrs = _attrs_from_args(('value',), *args, **kwargs)
@@ -423,10 +462,12 @@ class Doc(SimpleDoc):
             raise DocError("No <select> tag opened. Can't put an <option> here.")
             
     def detached_errors(self, render_function = None):
+        # type: (Any) -> None
         self._detached_errors_pos.append((len(self.result), render_function or self.error_dict_to_string))
         self.result.append('')
         
     def error_dict_to_string(self, dct):
+        # type: (Dict[str, str]) -> str
         if dct:
             doc, tag, text = SimpleDoc().tagtext()
             with tag('ul', klass='error-list'):
@@ -439,6 +480,7 @@ class Doc(SimpleDoc):
                         
             
     def getvalue(self):
+        # type: () -> str
         """
         returns the whole document as a string
         """
@@ -449,6 +491,7 @@ class Doc(SimpleDoc):
         return ''.join(self.result)
 
 def _add_class(dct, klass):
+    # type: (Dict[str, Any], str) -> None
     classes = dct.get('class', '').split()
     if klass not in classes:
         dct['class'] = ' '.join(classes + [klass])
