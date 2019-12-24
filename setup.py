@@ -5,7 +5,7 @@ with open('README.rst') as fd:
 
 setup(
     name='yattag',
-    version='1.12.2',
+    version='1.13.0',
     packages=['yattag'],
     install_requires=[
         'typing',
