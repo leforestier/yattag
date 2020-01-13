@@ -9,7 +9,7 @@ setup(
     package_data={"yattag": ["py.typed"]},
     packages=['yattag'],
     install_requires=[
-        'typing',
+        'typing;python_version<"3.5"',
     ],
     author = 'Benjamin Le Forestier',
     author_email = 'benjamin@leforestier.org',
