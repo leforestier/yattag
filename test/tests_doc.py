@@ -94,7 +94,7 @@ class TestDoc(unittest.TestCase):
             KeyError, lambda: root[0].attrib['checked']
         )
 
-    def test_other_input_types(self):
+    def test_file_and_tel_input_types(self):
         doc, tag, text = Doc().tagtext()
         with tag('body'):
             doc.input(name='test', type='file')
@@ -103,8 +103,17 @@ class TestDoc(unittest.TestCase):
         self.assertEqual(
             root[0].attrib['type'],'file'
         )
-        self.assertTrue(
+        self.assertEqual(
             root[1].attrib['type'], 'tel'
+        )
+        
+    def test_file_input_with_default_error(self):
+        doc, tag, text = Doc(defaults= {"test":'notastreamhandler'}).tagtext()
+        with self.assertRaises(Exception) as context:
+             doc.input(name='test', type='file')
+
+        self.assertTrue(
+            'Default value for HTML form input of type "file" is not supported' in str(context.exception)
         )
 
     def test_input_checkbox(self):
