@@ -412,7 +412,7 @@ class Doc(SimpleDoc):
         name, type, attrs = _attrs_from_args(('name', 'type'), *args, **kwargs)
         self._fields.add(name)
         if type in (
-            'text', 'password', 'hidden', 'search', 'email', 'url', 'number',
+            'text','file','tel', 'password', 'hidden', 'search', 'email', 'url', 'number',
             'range', 'date', 'datetime', 'datetime-local', 'month', 'week',
             'time', 'color'
         ): 

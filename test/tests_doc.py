@@ -93,7 +93,20 @@ class TestDoc(unittest.TestCase):
         self.assertRaises(
             KeyError, lambda: root[0].attrib['checked']
         )
-        
+
+    def test_other_input_types(self):
+        doc, tag, text = Doc().tagtext()
+        with tag('body'):
+            doc.input(name='test', type='file')
+            doc.input(name='test2', type='tel')
+        root = ET.fromstring(doc.getvalue())
+        self.assertEqual(
+            root[0].attrib['type'],'file'
+        )
+        self.assertTrue(
+            root[1].attrib['type'], 'tel'
+        )
+
     def test_input_checkbox(self):
         doc, tag, text = Doc(defaults = {'gift-wrap': 'yes'}).tagtext()
         with tag('body'):
