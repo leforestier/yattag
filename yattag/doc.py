@@ -39,6 +39,9 @@ class SimpleInput(object):
             lst.append(error_wrapper[1])
                 
         if self.name in defaults:
+            if(self.tpe == 'file'):
+                raise DocError('Default value for HTML form input of type "file" is not supported')
+
             attrs['value'] = str(defaults[self.name])
         attrs['name'] = self.name
         lst.append('<input type="%s" %s%s' % (self.tpe, dict_to_attrs(attrs), stag_end))
@@ -412,7 +415,7 @@ class Doc(SimpleDoc):
         name, type, attrs = _attrs_from_args(('name', 'type'), *args, **kwargs)
         self._fields.add(name)
         if type in (
-            'text', 'password', 'hidden', 'search', 'email', 'url', 'number',
+            'text','file','tel', 'password', 'hidden', 'search', 'email', 'url', 'number',
             'range', 'date', 'datetime', 'datetime-local', 'month', 'week',
             'time', 'color'
         ): 
