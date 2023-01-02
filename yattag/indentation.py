@@ -58,7 +58,7 @@ class Comment(Token):
     regex = r'<!--((?!-->).)*.?-->'
 
 class CData(Token):
-    regex = r'<!\[CDATA\[((?!\]\]>).*).?\]\]>'
+    regex = r'<!\[CDATA\[(.*?)\]\]>'
 
 class Doctype(Token):
     regex = r'''<!DOCTYPE(\s+([^<>"']+|"[^"]*"|'[^']*'))*>'''

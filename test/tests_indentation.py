@@ -176,7 +176,33 @@ public final class SignInConfiguration implements SafeParcelable {
             self.source_code_target
         )
         
-                
+    def test_indent_cdata(self):
+        expected_output = (
+'''<div>
+  <item>
+    <![CDATA[6*9]]>
+  </item>
+  <item>
+    <![CDATA[42]]>
+  </item>
+</div>'''
+        )
+
+        before = [
+            expected_output,
+            '<div><item><![CDATA[6*9]]></item><item><![CDATA[42]]></item></div>',
+            '''<div>
+  <item>
+    <![CDATA[6*9]]></item><item><![CDATA[42]]>
+  </item>
+</div>'''
+        ]
+        for inp in before:
+            self.assertEqual(indent(inp), expected_output)
+
+        within_text = "<p>Here's the data: <![CDATA[6*10]]></p>"
+        self.assertEqual(indent(within_text), within_text)
+
 
 
 if __name__ == '__main__':
