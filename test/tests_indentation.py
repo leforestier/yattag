@@ -10,23 +10,25 @@ class TestIndent(unittest.TestCase):
         self.maxDiff = None
     
         self.targets = {
-            '<p>aaa</p>': '<p>aaa</p>',
-            '<html><body><p>1</p><p>2</p></body></html>': """\
-<html>
+'<p>aaa</p>':
+'<p>aaa</p>',
+
+'<html><body><p>1</p><p>2</p></body></html>':
+"""<html>
     <body>
         <p>1</p>
         <p>2</p>
     </body>
 </html>""",
-            '<body><div id="main"><img src="photo1"><img src="photo2"></div></body>': """\
-<body>
+
+'<body><div id="main"><img src="photo1"><img src="photo2"></div></body>':
+"""<body>
     <div id="main">
         <img src="photo1">
         <img src="photo2">
     </div>
 </body>""",
-            """
-            <html>
+"""\n            <html>
             <body>
             <p><strong>Important:</strong> the content of nodes that directly contain text should be preserved.</p>
             <div>
@@ -34,8 +36,8 @@ class TestIndent(unittest.TestCase):
             </div>
             </body>
             </html>
-""": """\
-<html>
+""":
+"""<html>
     <body>
         <p><strong>Important:</strong> the content of nodes that directly contain text should be preserved.</p>
         <div>
@@ -43,28 +45,29 @@ class TestIndent(unittest.TestCase):
         </div>
     </body>
 </html>""",
-            '<p>Hello <i>world</i>!</p>': "<p>Hello <i>world</i>!</p>",
+
+'<p>Hello <i>world</i>!</p>': "<p>Hello <i>world</i>!</p>",
             
-            '<?xml version="1.0" encoding="utf-8"?><a><b/><b/></a>': '''\
-<?xml version="1.0" encoding="utf-8"?>
+'<?xml version="1.0" encoding="utf-8"?><a><b/><b/></a>':
+'''<?xml version="1.0" encoding="utf-8"?>
 <a>
     <b/>
     <b/>
 </a>''',
-    """\
-<test_processing_instruction>
+
+"""<test_processing_instruction>
 <?xml-stylesheet type="text/css" href="..\..\..\..\..\..\..\SharedResourceFiles\MAIN\Stylesheets\CSS\dita_branded_preview.css" title="Branded New"?>
 <?without_content?>
 </test_processing_instruction>""":
-"""\
-<test_processing_instruction>
+"""<test_processing_instruction>
     <?xml-stylesheet type="text/css" href="..\..\..\..\..\..\..\SharedResourceFiles\MAIN\Stylesheets\CSS\dita_branded_preview.css" title="Branded New"?>
     <?without_content?>
 </test_processing_instruction>"""
         }
         
-        self.targets_indent_text = { '<p>Hello <i>world</i>!</p>': """\
-<p>
+        self.targets_indent_text = {
+'<p>Hello <i>world</i>!</p>':
+"""<p>
     Hello 
     <i>
         world
@@ -73,9 +76,8 @@ class TestIndent(unittest.TestCase):
 </p>"""
         }
         
-        self.source_code = """\
-<body><code>\
-package com.google.android.gms.auth.api.signin.internal;
+        self.source_code = ( 
+"""<body><code>package com.google.android.gms.auth.api.signin.internal;
 
 import android.os.Parcel;
 import android.os.Parcelable.Creator;
@@ -108,9 +110,10 @@ public final class SignInConfiguration implements SafeParcelable {
         this(2, consumerPkgName, null, null, null, null);
     }</code></body>
 """
+        )
 
-        self.source_code_target = """\
-<body>
+        self.source_code_target = ( 
+"""<body>
     <code>
         package com.google.android.gms.auth.api.signin.internal;
         
@@ -146,6 +149,7 @@ public final class SignInConfiguration implements SafeParcelable {
             }
     </code>
 </body>"""
+        )
         
 
 
