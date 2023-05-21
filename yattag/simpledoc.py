@@ -113,9 +113,11 @@ class SimpleDoc(object):
         They are escaped for use as HTML attributes
         (the " character is replaced with &quot;)
 
-        In order to supply a "class" html attributes, you must supply a `klass` keyword
-        argument. This is because `class` is a reserved python keyword so you can't use it
-        outside of a class definition.
+        The names of some HTML attributes are reserved keywords in Python. Special names
+        are made to translate to them. Currently, there are:
+
+        `klass` -> `class`
+        `phor`  -> `for`
 
         Example::
 
@@ -254,10 +256,14 @@ class SimpleDoc(object):
         Note that, instead, you can set html/xml attributes by passing them as
         keyword arguments to the `tag` method.
 
-        In order to supply a "class" html attributes, you can either pass
-        a ('class', 'my_value') pair, or supply a `klass` keyword argument
-        (this is because `class` is a reserved python keyword so you can't use it
-        outside of a class definition).
+        The names of some HTML attributes are reserved keywords in Python. Special names
+        are made to translate to them. Currently, there are:
+
+        `klass` -> `class`
+        `phor`  -> `for`
+
+        Alternately, their real name can be passed as a tuple, such as
+        ('class', 'my_value')
 
         Examples::
 
@@ -266,6 +272,12 @@ class SimpleDoc(object):
                 doc.attr(id = 'welcome-message', klass = 'main-title')
 
             # you get: <h1 id="welcome-message" class="main-title">Welcome!</h1>
+
+            doc.stag('input', type='radio', id='RadioId')
+            with tag('label', phor='RadioId'):
+                text('Radio Button')
+
+            # you get: <input type="radio" id="RadioId" /><label for="RadioId">Radio Button</label>
 
             with tag('td'):
                 text('Citrus Limon')
@@ -517,6 +529,11 @@ def dict_to_attrs(dct):
         for key,value in dct.items()
     )
 
+_attr_key_translations = {
+    'klass' : 'class',
+    'phor'  : 'for'
+}
+
 def _attributes(args, kwargs):
     # type: (Any, Any) -> Dict[str, Any]
     lst = [] # type: List[Any]
@@ -532,7 +549,7 @@ def _attributes(args, kwargs):
             )
     result = dict(lst)
     result.update(
-        (('class', value) if key == 'klass' else (key, value))
+        (_attr_key_translations.get(key, key), value)
         for key,value in kwargs.items()
     )
     return result

@@ -24,6 +24,9 @@ class TestSimpledoc(unittest.TestCase):
             with tag('a', ('data-my-id', '89'), klass='alert'):
                 text('hi')
             doc.stag('img', src='squirrel.jpg', klass='animal')
+            doc.stag('input', type='radio', id='RadioId')
+            with tag('label', phor='RadioId'):
+                text('Radio Button')
 
         root = ET.fromstring(doc.getvalue())
         self.assertEqual(root.attrib['class'], "new")
@@ -31,9 +34,16 @@ class TestSimpledoc(unittest.TestCase):
         self.assertEqual(root[0].attrib['data-my-id'], '89')
         self.assertEqual(root[1].attrib['src'], 'squirrel.jpg')
         self.assertEqual(root[1].attrib['class'], 'animal')
+        self.assertEqual(root[2].attrib['type'], 'radio')
+        self.assertEqual(root[2].attrib['id'], 'RadioId')
+        self.assertEqual(root[3].attrib['for'], 'RadioId')
         self.assertRaises(
             KeyError,
             lambda: root[1].attrib['klass']
+        )
+        self.assertRaises(
+            KeyError,
+            lambda: root[3].attrib['phor']
         )
 
     def test_attrs_no_value(self):

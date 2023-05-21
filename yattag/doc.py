@@ -1,4 +1,4 @@
-from yattag.simpledoc import dict_to_attrs, html_escape, attr_escape, SimpleDoc, DocError
+from yattag.simpledoc import dict_to_attrs, _attr_key_translations, html_escape, attr_escape, SimpleDoc, DocError
 from typing import Any
 from typing import Dict
 from typing import List
@@ -230,7 +230,7 @@ def _attrs_from_args(required_keys, *args, **kwargs):
         else:
             raise_exception(arg)
     attrs.update(
-        (('class', value) if key == 'klass' else (key, value))
+        (_attr_key_translations.get(key, key), value)
         for key, value in kwargs.items()
     )
 
