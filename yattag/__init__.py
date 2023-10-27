@@ -55,7 +55,7 @@ Full tutorial on yattag.org_
 """
 
 __author__ = "Benjamin Le Forestier (benjamin@leforestier.org)"
-__version__ = '1.15.1'
+__version__ = '1.15.2'
 __all__ = [
     'Doc',
     'SimpleDoc',
