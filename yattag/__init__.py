@@ -56,6 +56,14 @@ Full tutorial on yattag.org_
 
 __author__ = "Benjamin Le Forestier (benjamin@leforestier.org)"
 __version__ = '1.15.1'
+__all__ = [
+    'Doc',
+    'SimpleDoc',
+    'indent',
+    'NO',
+    'FIRST_LINE',
+    'EACH_LINE'
+]
 
 from yattag.simpledoc import SimpleDoc
 from yattag.doc import Doc
