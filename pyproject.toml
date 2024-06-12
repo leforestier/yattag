@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yattag"
+authors = [
+    {name = "Benjamin Le Forestier", email = "benjamin@leforestier.org"},
+]
+version = "1.15.2"
+license = {text = "LGPL-2.1"}
+readme = "README.rst"
+requires-python = ">=3.5"
+dependencies = [
+    "typing",
+]
+description = "Generate HTML or XML in a pythonic way. Pure python alternative to web template engines. Can fill HTML forms with default values and error messages."
+keywords = [
+    "html", 
+    "template", 
+    "templating", 
+    "xml", 
+    "document", 
+    "form", 
+    "rendering",
+]
+classifiers = [
+    'Environment :: Web Environment',
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.6',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.2',
+    'Programming Language :: Python :: 3.3',
+    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Topic :: Internet :: WWW/HTTP',
+    'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+
+[project.urls]
+Website = "https://www.yattag.org"
