@@ -1,5 +1,5 @@
 import unittest
-from yattag import SimpleDoc
+from yattag import SimpleDoc, AsIs
 import xml.etree.ElementTree as ET
 
 class TestSimpledoc(unittest.TestCase):
@@ -158,6 +158,12 @@ class TestSimpledoc(unittest.TestCase):
         doc = SimpleDoc()
         doc.text("&")
         self.assertEqual(doc.getvalue(), "&amp;")
+
+    def test_asis(self):
+        doc, tag, text = SimpleDoc().tagtext()
+        with tag('elem', data=AsIs("{'a':'b'}")):
+            pass
+        self.assertEqual(doc.getvalue(), "<elem data=\"{'a':'b'}\"></elem>")
 
 if __name__ == '__main__':
     unittest.main()

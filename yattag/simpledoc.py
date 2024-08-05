@@ -494,9 +494,17 @@ def html_escape(s):
         )
 
 
+class AsIs:
+    def __init__(self, value):
+        self._value = value
+
+    def __str__(self):
+        return self._value
+
+
 def attr_escape(s):
     # type: (Union[str, int, float]) -> str
-    if isinstance(s,(int,float)):
+    if isinstance(s,(int,float,AsIs)):
         return str(s)
     try:
         return s.replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")

@@ -59,12 +59,13 @@ __version__ = '1.15.2'
 __all__ = [
     'Doc',
     'SimpleDoc',
+    'AsIs',
     'indent',
     'NO',
     'FIRST_LINE',
     'EACH_LINE'
 ]
 
-from yattag.simpledoc import SimpleDoc
+from yattag.simpledoc import SimpleDoc, AsIs
 from yattag.doc import Doc
 from yattag.indentation import indent, NO, FIRST_LINE, EACH_LINE
