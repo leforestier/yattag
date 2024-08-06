@@ -494,6 +494,14 @@ def html_escape(s):
         )
 
 
+class AsIs:
+    def __init__(self, value):
+        self._value = value
+
+    def __str__(self):
+        return self._value
+
+
 def attr_escape(s):
     # type: (Union[str, int, float]) -> str
     if isinstance(s,(int,float)):
@@ -506,6 +514,23 @@ def attr_escape(s):
             "Got %s (type %s) instead." % (repr(s), repr(type(s)))
         )
 
+def format_attr_value(value):
+    # type: (Union[str, int, float, AsIs]) -> str
+    """
+    formats an attribute value
+
+    For AsIs instances, this simply returns the str() of the value. For others,
+    it returns the result of calling attr_escape() on the value, wrapped in
+    double-quotes.
+
+    return a string suitable for putting after the "=" in an attribute
+    assignment.
+    """
+    if isinstance(value, AsIs):
+        return str(value)
+    else:
+        return f"\"{attr_escape(value)}\""
+
 
 ATTR_NO_VALUE = object()
 
@@ -513,7 +538,7 @@ def dict_to_attrs(dct):
     # type: (Dict[str, Any]) -> str
     return ' '.join(
         (key if value is ATTR_NO_VALUE
-        else '%s="%s"' % (key, attr_escape(value)))
+        else '%s=%s' % (key, format_attr_value(value)))
         for key,value in dct.items()
     )
 

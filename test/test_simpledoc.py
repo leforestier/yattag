@@ -1,6 +1,8 @@
 import unittest
-from yattag import SimpleDoc
+from yattag import SimpleDoc, AsIs
 import xml.etree.ElementTree as ET
+
+from yattag.simpledoc import format_attr_value
 
 class TestSimpledoc(unittest.TestCase):
 
@@ -158,6 +160,37 @@ class TestSimpledoc(unittest.TestCase):
         doc = SimpleDoc()
         doc.text("&")
         self.assertEqual(doc.getvalue(), "&amp;")
+
+    def test_asis_double_quotes(self):
+        doc, tag, text = SimpleDoc().tagtext()
+        with tag('elem', data=AsIs("\"{'a':'b'}\"")):
+            pass
+        self.assertEqual(doc.getvalue(), "<elem data=\"{'a':'b'}\"></elem>")
+
+    def test_asis_single_quotes(self):
+        doc, tag, text = SimpleDoc().tagtext()
+        with tag('elem', data=AsIs("\'{\"a\":\"b\"}'")):
+            pass
+        self.assertEqual(doc.getvalue(), "<elem data='{\"a\":\"b\"}'></elem>")
+
+
+class TestFormatAttrValue(unittest.TestCase):
+    def test_str(self):
+        self.assertEqual(format_attr_value('hello'), '"hello"')
+
+    def test_int(self):
+        self.assertEqual(format_attr_value(42), '"42"')
+
+    def test_float(self):
+        self.assertEqual(format_attr_value(4.2), '"4.2"')
+
+    def test_asis_unwrapped(self):
+        self.assertEqual(format_attr_value(AsIs('hello')), 'hello')
+
+    def test_asis_wrapped(self):
+        self.assertEqual(format_attr_value(AsIs('\"hello\"')), '\"hello\"')
+
+
 
 if __name__ == '__main__':
     unittest.main()
