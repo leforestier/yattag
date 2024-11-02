@@ -28,7 +28,7 @@ class SimpleInput(object):
         self.attrs = attrs
         
     def render(self, defaults, errors, error_wrapper, stag_end = ' />'):
-        # type: (Dict[str, str], Dict[str, str], Tuple[str, str], str) -> str
+        # type: (Dict[str, str | List[str] | bool], Dict[str, str], Tuple[str, str], str) -> str
         lst = [] # List[str]
         attrs = dict(self.attrs)
         error = errors and self.name in errors
@@ -72,7 +72,7 @@ class CheckableInput(object):
         return False
      
     def checked(self, defaults):
-        # type: (Dict[str, Union[List[str], str]]) -> bool
+        # type: (Dict[str, Union[List[str], str, bool]]) -> bool
         try:
             default = defaults[self.name]
         except KeyError:
@@ -85,7 +85,7 @@ class CheckableInput(object):
         
     
     def render(self, defaults, errors, error_wrapper, stag_end = ' />'):
-        # type: (Dict[str, Union[List[str], str]], Any, Tuple[str, str], str) -> str
+        # type: (Dict[str, Union[List[str], str, bool]], Any, Tuple[str, str], str) -> str
         lst = []
         attrs = dict(self.attrs)
         if self.rank == 0:
@@ -147,7 +147,7 @@ class ContainerTag(object):
         self.attrs = attrs
         
     def render(self, defaults, errors, error_wrapper, inner_content = ''):
-        # type: (Dict[str, str], Dict[str, str], Tuple[str, str], str) -> str
+        # type: (Dict[str, str | List[str] | bool], Dict[str, str], Tuple[str, str], str) -> str
         lst = []
         attrs = dict(self.attrs)
         if errors and self.name in errors:
@@ -183,7 +183,7 @@ class Option(object):
         self.attrs = attrs
 
     def render(self, defaults, errors, inner_content):
-        # type: (Dict[str, str], Dict[str, str], str) -> str
+        # type: (Dict[str, str | List[str] | bool], Dict[str, str], str) -> str
         selected = False        
         if self.name in defaults:
             if self.multiple:
@@ -362,7 +362,7 @@ class Doc(SimpleDoc):
     
     def __init__(self, defaults = None, errors = None,
      error_wrapper = ('<span class="error">', '</span>'), *args, **kwargs):
-        # type: (Optional[Dict[str, str]], Optional[Dict[str, str]], Tuple[str, str], Any, Any) -> None
+        # type: (Optional[Dict[str, str | List[str] | bool]], Optional[Dict[str, str]], Tuple[str, str], Any, Any) -> None
         """
         creates a Doc instance
         
